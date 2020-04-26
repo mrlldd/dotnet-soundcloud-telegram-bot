@@ -20,7 +20,7 @@ namespace SoundCloudTelegramBot.Controllers
 
 
         [HttpPost]
-        public Task Update([FromBody] Update update)
+        public void Update([FromBody] Update update)
         {
             logger.LogInformation(JsonConvert.SerializeObject(update, Formatting.Indented));
         }
