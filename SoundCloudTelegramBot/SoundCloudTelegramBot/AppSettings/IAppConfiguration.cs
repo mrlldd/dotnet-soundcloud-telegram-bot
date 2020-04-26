@@ -4,5 +4,6 @@
     {
         ITelegramSettings Telegram { get; }
         ISoundCloudSettings SoundCloud { get; }
+        string MessageUpdateRoute { get; }
     }
 }

@@ -9,5 +9,7 @@
         }
         public ITelegramSettings Telegram { get; set; }
         public ISoundCloudSettings SoundCloud { get; set; }
+
+        public string MessageUpdateRoute { get; set; }
     }
 }
