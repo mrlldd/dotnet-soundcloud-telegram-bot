@@ -1,4 +1,4 @@
-﻿namespace SoundCloudTelegramBot.AppSettings
+﻿namespace SoundCloudTelegramBot.AppSettings.SoundCloud
 {
     public interface ISoundCloudSettings
     {

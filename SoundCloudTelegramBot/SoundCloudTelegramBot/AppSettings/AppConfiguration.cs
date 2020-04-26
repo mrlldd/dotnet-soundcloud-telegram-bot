@@ -1,4 +1,7 @@
-﻿namespace SoundCloudTelegramBot.AppSettings
+﻿using SoundCloudTelegramBot.AppSettings.SoundCloud;
+using SoundCloudTelegramBot.AppSettings.Telegram;
+
+namespace SoundCloudTelegramBot.AppSettings
 {
     public class AppConfiguration : IAppConfiguration
     {
@@ -11,5 +14,6 @@
         public ISoundCloudSettings SoundCloud { get; set; }
 
         public string MessageUpdateRoute { get; set; }
+        public string WebhookUrl { get; set; }
     }
 }

@@ -1,6 +1,4 @@
-﻿using Telegram.Bot;
-
-namespace SoundCloudTelegramBot.AppSettings
+﻿namespace SoundCloudTelegramBot.AppSettings.Telegram
 {
     public class TelegramSettings : ITelegramSettings
     {

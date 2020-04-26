@@ -21,18 +21,19 @@ namespace SoundCloudTelegramBot.Common.Telegram
 
         public ITelegramBotClient Instance => instance ?? throw new InvalidOperationException("Bot is not initialized.");
 
-        public async Task Initialize(string webhook)
+        public async Task Initialize(string webhookUrl)
         {
             logger.LogInformation("Started bot initialization.");
             if (instance != null)
             {
                 throw new InvalidOperationException("Bot is already initialized.");
             }
-            instance = new TelegramBotClient(appConfiguration.Telegram.BotToken);
+            var bot = new TelegramBotClient(appConfiguration.Telegram.BotToken);
             logger.LogInformation(JsonConvert.SerializeObject(appConfiguration, Formatting.Indented));
-            var updateRoute = webhook + appConfiguration.MessageUpdateRoute;
-            await instance.SetWebhookAsync(updateRoute);
-            logger.LogInformation("Successfully initialized bot with route: " + updateRoute);
+            var updateRoute = webhookUrl + appConfiguration.MessageUpdateRoute;
+            await bot.SetWebhookAsync(updateRoute);
+            instance = bot;
+            logger.LogInformation($"Successfully initialized bot with route: {updateRoute}");
         }
     }
 }
