@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using SoundCloudTelegramBot.ActionFilters;
 using SoundCloudTelegramBot.Common.Extensions;
 using SoundCloudTelegramBot.Common.Telegram;
+using SoundCloudTelegramBot.Common.Telegram.Commands;
 using SoundCloudTelegramBot.Common.Telegram.Commands.SoundCloud.Search;
 using Telegram.Bot.Types;
 using SoundCloudTelegramBot.ExceptionFilters;
@@ -19,14 +20,14 @@ namespace SoundCloudTelegramBot.Controllers
     {
         private readonly ILogger<TelegramController> logger;
         private readonly IBotProvider botProvider;
-        private readonly ISearchTracksCommand searchTracksCommand;
+        private readonly IDispatcher dispatcher;
 
         public TelegramController(ILogger<TelegramController> logger, IBotProvider botProvider,
-            ISearchTracksCommand searchTracksCommand)
+            IDispatcher dispatcher)
         {
             this.logger = logger;
             this.botProvider = botProvider;
-            this.searchTracksCommand = searchTracksCommand;
+            this.dispatcher = dispatcher;
         }
 
         [HttpPost]
@@ -36,7 +37,7 @@ namespace SoundCloudTelegramBot.Controllers
             var bot = botProvider.Instance;
             if (update.Message.IsCommand())
             {
-                searchTracksCommand.ExecuteAsync();
+                return dispatcher.DispatchCommandAsync(update.Message);
             }
             //throw new InvalidOperationException("Hey, this is an error!");
             return bot.SendTextMessageAsync(update.Message.Chat.Id, "Unknown message, sorry :(");

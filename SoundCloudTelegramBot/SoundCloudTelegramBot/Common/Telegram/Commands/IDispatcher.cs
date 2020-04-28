@@ -1,12 +1,10 @@
 ﻿using System.Threading.Tasks;
-using Telegram.Bot.Requests;
 using Telegram.Bot.Types;
 
 namespace SoundCloudTelegramBot.Common.Telegram.Commands
 {
-    public interface ICommand
+    public interface IDispatcher
     {
-        string Name { get; }
-        Task ExecuteAsync(Message message);
+        Task DispatchCommandAsync(Message message);
     }
 }

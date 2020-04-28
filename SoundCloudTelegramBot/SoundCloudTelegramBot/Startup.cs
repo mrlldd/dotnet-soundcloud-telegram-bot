@@ -8,8 +8,9 @@ using Microsoft.Extensions.Hosting;
 using SoundCloudTelegramBot.AppSettings;
 using SoundCloudTelegramBot.Common.HostedServices;
 using SoundCloudTelegramBot.Common.Services.CurrentMessageProvider;
+using SoundCloudTelegramBot.Common.SoundCloud;
 using SoundCloudTelegramBot.Common.Telegram;
-using SoundCloudTelegramBot.Common.Telegram.Commands.SoundCloud.Search;
+using SoundCloudTelegramBot.Common.Telegram.Commands;
 using SoundCloudTelegramBot.Middleware;
 
 namespace SoundCloudTelegramBot
@@ -36,8 +37,9 @@ namespace SoundCloudTelegramBot
             services.AddSingleton<IBotProvider, BotProvider>();
             services.AddHostedService<BotInitializerHostedService>();
             services.AddScoped<ICurrentMessageProvider, CurrentMessageProvider>();
-            // commands
-            services.AddScoped<ISearchTracksCommand, SearchTracksCommand>();
+            services.AddHttpClient();
+            services.AddTelegramCommands();
+            services.AddSoundCloudServices();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
