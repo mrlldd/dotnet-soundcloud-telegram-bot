@@ -71,9 +71,10 @@ namespace SoundCloudTelegramBot.Common.SoundCloud.Interaction
                 .Select(x => x.Value)
                 .Aggregate((prev, next) =>
                 {
-                    var result = new byte[prev.Length + next.Length];
+                    var prevLength = prev.Length;
+                    var result = new byte[prevLength + next.Length];
                     prev.CopyTo(result, 0);
-                    next.CopyTo(result, prev.Length);
+                    next.CopyTo(result, prevLength);
                     return result;
                 }));
         }
