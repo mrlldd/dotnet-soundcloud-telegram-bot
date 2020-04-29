@@ -2,6 +2,6 @@
 {
     public class MediaModel
     {
-        private TranscodingModel[] Transcodings { get; set; }
+        public TranscodingModel[] Transcodings { get; set; }
     }
 }
