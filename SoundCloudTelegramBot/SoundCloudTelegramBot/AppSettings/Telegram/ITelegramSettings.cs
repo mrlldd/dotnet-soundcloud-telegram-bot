@@ -2,6 +2,6 @@
 {
     public interface ITelegramSettings
     {
-        string BotToken { get; }
+        string BotToken { get; set; }
     }
 }
