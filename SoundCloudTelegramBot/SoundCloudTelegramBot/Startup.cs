@@ -27,9 +27,7 @@ namespace SoundCloudTelegramBot
             this.configurationRoot = configurationRoot;
             appConfiguration = new AppConfiguration();
             configurationRoot.Bind(appConfiguration);
-            appConfiguration.Telegram.BotToken ??= Environment.GetEnvironmentVariable("BotToken");
-            appConfiguration.SoundCloud.ClientId ??= Environment.GetEnvironmentVariable("ClientId");
-            appConfiguration.SoundCloud.OAuthToken ??= Environment.GetEnvironmentVariable("OAuthToken");
+
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -54,6 +52,13 @@ namespace SoundCloudTelegramBot
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+            }
+
+            if (env.IsProduction())
+            {
+                appConfiguration.Telegram.BotToken ??= Environment.GetEnvironmentVariable("BotToken");
+                appConfiguration.SoundCloud.ClientId ??= Environment.GetEnvironmentVariable("ClientId");
+                appConfiguration.SoundCloud.OAuthToken ??= Environment.GetEnvironmentVariable("OAuthToken");
             }
             app.UseMiddleware<ResponseTimeMiddleware>();
             app.UseRouting();
