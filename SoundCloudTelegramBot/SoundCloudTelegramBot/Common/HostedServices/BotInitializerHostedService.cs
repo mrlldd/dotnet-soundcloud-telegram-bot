@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -27,6 +29,16 @@ namespace SoundCloudTelegramBot.Common.HostedServices
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
+            var envDictionary = new Dictionary<string, string>();
+            foreach (var item in Environment.GetEnvironmentVariables())
+            {
+                var entry = item is DictionaryEntry dictionaryEntry ? dictionaryEntry : default;
+                envDictionary[entry.Key.ToString()] = entry.Value.ToString();
+                logger.LogInformation($"{entry.Key} - {entry.Value}");
+            }
+            appConfiguration.Telegram.BotToken ??= envDictionary["BOTTOKEN"];
+            appConfiguration.SoundCloud.ClientId ??= envDictionary["CLIENTID"];
+            appConfiguration.SoundCloud.OAuthToken ??= envDictionary["OAUTHTOKEN"];
             using var scope = logger.BeginScope("Bot initialization");
             if (await TryInitializeAutomatically())
             {
