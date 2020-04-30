@@ -61,7 +61,7 @@ namespace SoundCloudTelegramBot
             app.UseRouting();
             app.UseEndpoints(endpoints =>
             {
-                //endpoints.MapGet("/", context => context.Response.WriteAsync("This is my new telega bot!"));
+                endpoints.MapGet("/", context => context.Response.WriteAsync("This is my new telega bot!"));
                 endpoints.MapControllers();
             });
             app.UseHttpsRedirection();
