@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -56,7 +57,8 @@ namespace SoundCloudTelegramBot
             var logger =app.ApplicationServices.GetService<ILoggerFactory>().CreateLogger<Startup>();
             foreach (var item in Environment.GetEnvironmentVariables())
             {
-                logger.LogInformation(item.ToString());
+                var entry = item is DictionaryEntry dictionaryEntry ? dictionaryEntry : default;
+                logger.LogInformation($"{entry.Key} - {entry.Value}");
             }
             appConfiguration.Telegram.BotToken ??= Environment.GetEnvironmentVariable("BOTTOKEN");
             appConfiguration.SoundCloud.ClientId ??= Environment.GetEnvironmentVariable("CLIENTID");
