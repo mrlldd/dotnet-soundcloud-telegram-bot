@@ -46,7 +46,7 @@ namespace SoundCloudTelegramBot.Common.Telegram
             appConfiguration.SoundCloud.OAuthToken = envDictionary["OAUTHTOKEN"];
             var bot = new TelegramBotClient(envDictionary["BOTTOKEN"]);
             logger.LogInformation(JsonConvert.SerializeObject(appConfiguration, Formatting.Indented));
-            var updateRoute = webhookUrl + appConfiguration.MessageUpdateRoute;
+            var updateRoute = webhookUrl + @"/api/telegram/update";
             await bot.SetWebhookAsync(updateRoute);
             instance = bot;
             logger.LogInformation($"Successfully initialized bot with route: {updateRoute}");
