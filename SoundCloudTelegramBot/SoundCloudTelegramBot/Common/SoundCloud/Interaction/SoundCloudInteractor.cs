@@ -40,6 +40,7 @@ namespace SoundCloudTelegramBot.Common.SoundCloud.Interaction
             });
             client = restClient;
         }
+
         //todo more SOLID :)
         public async Task<SearchTracksResultModel> SearchTracks(string query)
         {
@@ -53,6 +54,7 @@ namespace SoundCloudTelegramBot.Common.SoundCloud.Interaction
             logger.LogInformation("Successfully got track list.");
             return response.Data;
         }
+
         //todo decorated restclient or smth like
         public async Task<Stream> DownloadTrackAsync(TrackModel track)
         {
@@ -89,7 +91,6 @@ namespace SoundCloudTelegramBot.Common.SoundCloud.Interaction
                 .Split(chunksListResponse.Content, "(https://cf-hls-media.sndcdn.com.(?(?=\\n#)|.*))")
                 .Where((x, i) => i % 2 == 1) // works as needed, made because of low-level knowledge of regex
                 .ToArray();
-            
         }
 
         private async Task<string> GetRedirectUrlAsync(string url)
@@ -116,8 +117,13 @@ namespace SoundCloudTelegramBot.Common.SoundCloud.Interaction
             request.AddHeader("Accept", "application/json, text/javascript, */*; q=0.01");
             request.AddHeader("Authorization", appConfiguration.SoundCloud.OAuthToken);
             var response = await client.ExecuteGetAsync<TrackModel>(request);
-            logger.LogInformation("Successfully resolved track.");
-            return response.Data;
+            if (response.IsSuccessful)
+            {
+                logger.LogInformation("Successfully resolved track.");
+                return response.Data;
+            }
+            logger.LogWarning($"Track resolve for url \"{trackUrl}\" failed.");
+            return null;
         }
     }
 }

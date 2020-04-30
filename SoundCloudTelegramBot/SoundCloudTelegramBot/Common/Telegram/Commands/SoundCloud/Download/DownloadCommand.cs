@@ -18,10 +18,13 @@ namespace SoundCloudTelegramBot.Common.Telegram.Commands.SoundCloud.Download
         public override async Task ExecuteAsync(Message message)
         {
             var track = await soundCloudInteractor.ResolveTrackAsync(message.Text);
+            if (track == null)
+            {
+                await BotProvider.Instance.SendTextMessageAsync(message.Chat.Id, "Seems like there is wrong url :(");
+                return;
+            }
             var resultStream = await soundCloudInteractor.DownloadTrackAsync(track);
-            //BotProvider.Instance.SendAudioAsync(message.Chat.Id)
-            await BotProvider.Instance.SendTextMessageAsync(message.Chat.Id, "hey you triggered download command!");
-            await BotProvider.Instance.SendAudioAsync(message.Chat.Id, new InputMedia(resultStream, $"{track.User.Username} - {track.Title}"));
+            await BotProvider.Instance.SendAudioAsync(message.Chat.Id, new InputMedia(resultStream, $@"{track.User.Username} - {track.Title}"));
         }
     }
 }

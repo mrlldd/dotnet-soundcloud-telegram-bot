@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using SoundCloudTelegramBot.Common.Caches.Search;
 using Telegram.Bot.Types;
 
 namespace SoundCloudTelegramBot.Common.Telegram.Commands
@@ -10,30 +12,39 @@ namespace SoundCloudTelegramBot.Common.Telegram.Commands
     {
         private readonly ILogger<Dispatcher> logger;
         private readonly IBotProvider botProvider;
-        private readonly ICommand[] commands;
+        private readonly ISearchCache searchCache;
+        private readonly Dictionary<string,ICommand> commands;
         public Dispatcher(IServiceProvider serviceProvider,
             ILogger<Dispatcher> logger,
-            IBotProvider botProvider)
+            IBotProvider botProvider,
+            ISearchCache searchCache)
         {
             this.logger = logger;
             this.botProvider = botProvider;
+            this.searchCache = searchCache;
             commands = typeof(Startup)
                 .Assembly
                 .GetTypes()
                 .Where(x => typeof(ICommand).IsAssignableFrom(x))
                 .Select(serviceProvider.GetService)
                 .OfType<ICommand>()
-                .ToArray();
-            logger.LogInformation($"Collected {commands.Length} commands.");
+                .ToDictionary(x => x.Name);
+            logger.LogInformation($"Collected {commands.Count} commands.");
         }
         public Task DispatchCommandAsync(Message message)
         {
             var (commandName, arguments) = ParseCommandText(message.Text);
-            var command = commands.FirstOrDefault(x => x.Name.Equals(commandName));
-            if (command == null)
+            if (commandName.All(char.IsDigit) &&
+                searchCache.TryGetTrackUrl(message.Chat.Id, int.Parse(commandName), out var trackUrl))
+            {
+                message.Text = trackUrl;
+                return commands["download"].ExecuteAsync(message);
+            }
+            if (!commands.TryGetValue(commandName, out var command))
             {
                 return botProvider.Instance.SendTextMessageAsync(message.Chat.Id, "Not found this command: " + commandName);
             }
+
             logger.LogInformation($"Successfully dispatched command \"{commandName}\".");
             message.Text = arguments;
             return command.ExecuteAsync(message);

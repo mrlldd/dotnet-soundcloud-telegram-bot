@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SoundCloudTelegramBot.AppSettings;
+using SoundCloudTelegramBot.Common.Caches;
 using SoundCloudTelegramBot.Common.HostedServices;
 using SoundCloudTelegramBot.Common.Services.CurrentMessageProvider;
 using SoundCloudTelegramBot.Common.SoundCloud;
@@ -40,6 +41,7 @@ namespace SoundCloudTelegramBot
             services.AddHttpClient();
             services.AddTelegramCommands();
             services.AddSoundCloudServices();
+            services.AddCaches();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
