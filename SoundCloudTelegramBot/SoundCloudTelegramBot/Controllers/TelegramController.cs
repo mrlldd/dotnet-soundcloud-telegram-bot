@@ -16,7 +16,7 @@ namespace SoundCloudTelegramBot.Controllers
     [ApiController]
     [WrapCurrentMessage]
     [TypeFilter(typeof(TelegramExceptionHandler))]
-    [Route("//api/[controller]/[action]")]
+    [Route("/")]
     public class TelegramController : ControllerBase
     {
         private readonly ILogger<TelegramController> logger;
@@ -42,10 +42,14 @@ namespace SoundCloudTelegramBot.Controllers
             {
                 return dispatcher.DispatchCommandAsync(update.Message);
             }
+
             //throw new InvalidOperationException("Hey, this is an error!");
             //return bot.SendTextMessageAsync(update.Message.Chat.Id, "Unknown message, sorry :(");
-            update.Message.Text =update.Message.Text.Trim().Insert(0, "/search ");
+            update.Message.Text = update.Message.Text.Trim().Insert(0, "/search ");
             return dispatcher.DispatchCommandAsync(update.Message);
         }
+
+        [HttpGet]
+        public string Index() => "Go away please man";
     }
 }
