@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -19,7 +20,8 @@ namespace SoundCloudTelegramBot.Common.Telegram
             this.appConfiguration = appConfiguration;
         }
 
-        public ITelegramBotClient Instance => instance ?? throw new InvalidOperationException("Bot is not initialized.");
+        public ITelegramBotClient Instance =>
+            instance ?? throw new InvalidOperationException("Bot is not initialized.");
 
         public async Task Initialize(string webhookUrl)
         {
@@ -28,6 +30,9 @@ namespace SoundCloudTelegramBot.Common.Telegram
             {
                 throw new InvalidOperationException("Bot is already initialized.");
             }
+
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 |
+                                                   SecurityProtocolType.Tls12 | SecurityProtocolType.Tls13;
             var bot = new TelegramBotClient(appConfiguration.Telegram.BotToken);
             logger.LogInformation(JsonConvert.SerializeObject(appConfiguration, Formatting.Indented));
             var updateRoute = webhookUrl + appConfiguration.MessageUpdateRoute;
