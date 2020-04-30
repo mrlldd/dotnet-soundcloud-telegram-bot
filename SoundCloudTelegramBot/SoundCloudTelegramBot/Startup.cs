@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using SoundCloudTelegramBot.AppSettings;
 using SoundCloudTelegramBot.Common.Caches;
 using SoundCloudTelegramBot.Common.HostedServices;
@@ -52,7 +53,11 @@ namespace SoundCloudTelegramBot
             {
                 app.UseDeveloperExceptionPage();
             }
-
+            var logger =app.ApplicationServices.GetService<ILoggerFactory>().CreateLogger<Startup>();
+            foreach (var item in Environment.GetEnvironmentVariables())
+            {
+                logger.LogInformation(item.ToString());
+            }
             appConfiguration.Telegram.BotToken ??= Environment.GetEnvironmentVariable("BOTTOKEN");
             appConfiguration.SoundCloud.ClientId ??= Environment.GetEnvironmentVariable("CLIENTID");
             appConfiguration.SoundCloud.OAuthToken ??= Environment.GetEnvironmentVariable("OAUTHTOKEN");
