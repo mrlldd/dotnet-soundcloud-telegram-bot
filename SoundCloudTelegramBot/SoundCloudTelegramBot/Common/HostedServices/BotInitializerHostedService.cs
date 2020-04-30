@@ -32,7 +32,7 @@ namespace SoundCloudTelegramBot.Common.HostedServices
             {
                 return;
             }
-
+#if DEBUG
             retry:
             logger.LogInformation("Input webhook URL: ");
             var input = Console.ReadLine();
@@ -45,6 +45,7 @@ namespace SoundCloudTelegramBot.Common.HostedServices
                 logger.LogError(e, "Wrong webhook: " + input);
                 goto retry;
             }
+#endif
         }
 
         private async Task<bool> TryInitializeAutomatically()
@@ -52,7 +53,7 @@ namespace SoundCloudTelegramBot.Common.HostedServices
             logger.LogInformation("Trying to initialize bot automatically.");
             try
             {
-                await botProvider.Initialize(appConfiguration.WebhookUrl);
+                await botProvider.Initialize("https://soundcloud-in-play-tg-bot.herokuapp.com/");
             }
             catch (Exception e)
             {
