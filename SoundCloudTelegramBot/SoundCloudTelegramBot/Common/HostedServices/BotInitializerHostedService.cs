@@ -56,7 +56,7 @@ namespace SoundCloudTelegramBot.Common.HostedServices
             logger.LogInformation("Trying to initialize bot automatically.");
             try
             {
-                await botProvider.Initialize("https://soundcloud-in-play-tg-bot.herokuapp.com/");
+                await botProvider.Initialize("https://soundcloud-in-play-tg-bot.herokuapp.com");
             }
             catch (Exception e)
             {
