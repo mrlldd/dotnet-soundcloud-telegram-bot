@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -55,14 +56,16 @@ namespace SoundCloudTelegramBot
                 app.UseDeveloperExceptionPage();
             }
             var logger =app.ApplicationServices.GetService<ILoggerFactory>().CreateLogger<Startup>();
+            var envDictionary = new Dictionary<string, string>();
             foreach (var item in Environment.GetEnvironmentVariables())
             {
                 var entry = item is DictionaryEntry dictionaryEntry ? dictionaryEntry : default;
+                envDictionary[entry.Key.ToString()] = entry.Value.ToString();
                 logger.LogInformation($"{entry.Key} - {entry.Value}");
             }
-            appConfiguration.Telegram.BotToken ??= Environment.GetEnvironmentVariable("BOTTOKEN");
-            appConfiguration.SoundCloud.ClientId ??= Environment.GetEnvironmentVariable("CLIENTID");
-            appConfiguration.SoundCloud.OAuthToken ??= Environment.GetEnvironmentVariable("OAUTHTOKEN");
+            appConfiguration.Telegram.BotToken ??= envDictionary["BOTTOKEN"];
+            appConfiguration.SoundCloud.ClientId ??= envDictionary["CLIENTID"];
+            appConfiguration.SoundCloud.OAuthToken ??= envDictionary["OAUTHTOKEN"];
             app.UseMiddleware<ResponseTimeMiddleware>();
             app.UseRouting();
             app.UseEndpoints(endpoints =>
