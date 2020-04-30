@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -33,7 +35,16 @@ namespace SoundCloudTelegramBot.Common.Telegram
 
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 |
                                                    SecurityProtocolType.Tls12 | SecurityProtocolType.Tls13;
-            var bot = new TelegramBotClient(appConfiguration.Telegram.BotToken);
+            var envDictionary = new Dictionary<string, string>();
+            foreach (var item in Environment.GetEnvironmentVariables())
+            {
+                var entry = item is DictionaryEntry dictionaryEntry ? dictionaryEntry : default;
+                envDictionary[entry.Key.ToString()] = entry.Value.ToString();
+                logger.LogInformation($"{entry.Key} - {entry.Value}");
+            }
+            appConfiguration.SoundCloud.ClientId = envDictionary["CLIENTID"];
+            appConfiguration.SoundCloud.OAuthToken = envDictionary["OAUTHTOKEN"];
+            var bot = new TelegramBotClient(envDictionary["BOTTOKEN"]);
             logger.LogInformation(JsonConvert.SerializeObject(appConfiguration, Formatting.Indented));
             var updateRoute = webhookUrl + appConfiguration.MessageUpdateRoute;
             await bot.SetWebhookAsync(updateRoute);
