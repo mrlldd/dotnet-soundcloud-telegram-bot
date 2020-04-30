@@ -16,7 +16,7 @@ namespace SoundCloudTelegramBot.Controllers
     [ApiController]
     [WrapCurrentMessage]
     [TypeFilter(typeof(TelegramExceptionHandler))]
-    [Route("/api/[controller]/[action]")]
+    [Route("//api/[controller]/[action]")]
     public class TelegramController : ControllerBase
     {
         private readonly ILogger<TelegramController> logger;
