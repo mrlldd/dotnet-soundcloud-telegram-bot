@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -31,11 +32,11 @@ namespace SoundCloudTelegramBot
 
         public Startup(IConfiguration configurationRoot,
             IHostEnvironment environment,
-            ILogger<Startup> logger)
+            ILoggerFactory factory)
         {
             this.configurationRoot = configurationRoot;
             this.environment = environment;
-            this.logger = logger;
+            logger = factory.CreateLogger<Startup>();
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -72,7 +73,6 @@ namespace SoundCloudTelegramBot
 
             services.AddControllers().AddNewtonsoftJson();
             //services.AddSingleton<IAppConfiguration>(appConfiguration);
-            services.AddLogging();
             services.AddSingleton<IBotProvider, BotProvider>();
             services.AddHostedService<BotInitializerHostedService>();
             services.AddScoped<ICurrentMessageProvider, CurrentMessageProvider>();
