@@ -15,13 +15,16 @@ namespace SoundCloudTelegramBot
         public static void Main(string[] args)
         {
             CreateHostBuilder(args)
-                .ConfigureServices(services => services.AddLogging())
                 .Build()
                 .Run();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder => { webBuilder.UseStartup<Startup>(); });
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder.ConfigureServices(services => services.AddLogging());
+                    webBuilder.UseStartup<Startup>();
+                });
     }
 }
