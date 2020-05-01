@@ -10,6 +10,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SoundCloudTelegramBot.AppSettings;
+using SoundCloudTelegramBot.AppSettings.SoundCloud;
+using SoundCloudTelegramBot.AppSettings.Telegram;
 using SoundCloudTelegramBot.Common.Caches;
 using SoundCloudTelegramBot.Common.HostedServices;
 using SoundCloudTelegramBot.Common.Services.CurrentMessageProvider;
@@ -23,21 +25,20 @@ namespace SoundCloudTelegramBot
     public class Startup
     {
         private readonly IConfiguration configurationRoot;
-        private readonly AppConfiguration appConfiguration;
-
+        private AppConfiguration appConfiguration;
+        private IServiceCollection serviceCollection;
         public Startup(IConfiguration configurationRoot)
         {
             this.configurationRoot = configurationRoot;
-            appConfiguration = new AppConfiguration();
-            configurationRoot.Bind(appConfiguration);
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            serviceCollection = services;
             services.AddControllers().AddNewtonsoftJson();
-            services.AddSingleton<IAppConfiguration>(appConfiguration);
+            //services.AddSingleton<IAppConfiguration>(appConfiguration);
             services.AddLogging();
             services.AddSingleton<IBotProvider, BotProvider>();
             services.AddHostedService<BotInitializerHostedService>();
@@ -54,9 +55,33 @@ namespace SoundCloudTelegramBot
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                appConfiguration = new AppConfiguration(new TelegramSettings(), new SoundCloudSettings());
+                configurationRoot.Bind(appConfiguration);
             }
-            var logger =app.ApplicationServices.GetService<ILoggerFactory>().CreateLogger<Startup>();
-           
+            else if (env.IsProduction())
+            {
+                var logger = app.ApplicationServices.GetService<ILoggerFactory>().CreateLogger<Startup>();
+                var envDictionary = new Dictionary<string, string>();
+                foreach (var item in Environment.GetEnvironmentVariables())
+                {
+                    var entry = item is DictionaryEntry dictionaryEntry ? dictionaryEntry : default;
+                    envDictionary[entry.Key.ToString()] = entry.Value.ToString();
+                    logger.LogInformation($"{entry.Key} - {entry.Value}");
+                }
+
+                var soundCloudSettings = new SoundCloudSettings
+                {
+                    ClientId = envDictionary["CLIENTID"],
+                    OAuthToken = envDictionary["OAUTHTOKEN"]
+                };
+                var telegramSettings = new TelegramSettings
+                {
+                    BotToken = envDictionary["BOTTOKEN"]
+                };
+                var appConfig = new AppConfiguration(telegramSettings, soundCloudSettings);
+                serviceCollection.AddSingleton<IAppConfiguration, AppConfiguration>(_ => appConfig);
+            }
+
             app.UseMiddleware<ResponseTimeMiddleware>();
             app.UseRouting();
             app.UseEndpoints(endpoints =>

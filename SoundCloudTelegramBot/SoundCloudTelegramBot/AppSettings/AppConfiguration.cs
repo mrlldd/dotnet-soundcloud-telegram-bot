@@ -5,10 +5,10 @@ namespace SoundCloudTelegramBot.AppSettings
 {
     public class AppConfiguration : IAppConfiguration
     {
-        public AppConfiguration()
+        public AppConfiguration(ITelegramSettings telegramSettings, ISoundCloudSettings soundCloudSettings)
         {
-            Telegram = new TelegramSettings();
-            SoundCloud = new SoundCloudSettings();
+            Telegram = telegramSettings;
+            SoundCloud = soundCloudSettings;
         }
         public ITelegramSettings Telegram { get; set; }
         public ISoundCloudSettings SoundCloud { get; set; }

@@ -32,19 +32,8 @@ namespace SoundCloudTelegramBot.Common.Telegram
             {
                 throw new InvalidOperationException("Bot is already initialized.");
             }
-
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 |
-                                                   SecurityProtocolType.Tls12 | SecurityProtocolType.Tls13;
-            var envDictionary = new Dictionary<string, string>();
-            foreach (var item in Environment.GetEnvironmentVariables())
-            {
-                var entry = item is DictionaryEntry dictionaryEntry ? dictionaryEntry : default;
-                envDictionary[entry.Key.ToString()] = entry.Value.ToString();
-                logger.LogInformation($"{entry.Key} - {entry.Value}");
-            }
-            appConfiguration.SoundCloud.ClientId = envDictionary["CLIENTID"];
-            appConfiguration.SoundCloud.OAuthToken = envDictionary["OAUTHTOKEN"];
-            var bot = new TelegramBotClient(envDictionary["BOTTOKEN"]);
+            
+            var bot = new TelegramBotClient(appConfiguration.Telegram.BotToken);
             logger.LogInformation(JsonConvert.SerializeObject(appConfiguration, Formatting.Indented));
             var updateRoute = webhookUrl + "/api/telegram/update";
             await bot.SetWebhookAsync(updateRoute);
