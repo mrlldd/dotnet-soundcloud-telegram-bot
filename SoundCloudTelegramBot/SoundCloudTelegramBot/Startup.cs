@@ -27,16 +27,13 @@ namespace SoundCloudTelegramBot
     {
         private readonly IConfiguration configurationRoot;
         private readonly IHostEnvironment environment;
-        private readonly ILogger<Startup> logger;
         private AppConfiguration appConfiguration;
 
         public Startup(IConfiguration configurationRoot,
-            IHostEnvironment environment,
-            ILoggerFactory factory)
+            IHostEnvironment environment)
         {
             this.configurationRoot = configurationRoot;
             this.environment = environment;
-            logger = factory.CreateLogger<Startup>();
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -55,7 +52,6 @@ namespace SoundCloudTelegramBot
                 {
                     var entry = item is DictionaryEntry dictionaryEntry ? dictionaryEntry : default;
                     envDictionary[entry.Key.ToString()] = entry.Value.ToString();
-                    logger.LogInformation($"{entry.Key} - {entry.Value}");
                 }
 
                 var soundCloudSettings = new SoundCloudSettings
