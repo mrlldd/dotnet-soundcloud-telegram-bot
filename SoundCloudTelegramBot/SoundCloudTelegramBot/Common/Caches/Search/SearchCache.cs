@@ -18,20 +18,22 @@ namespace SoundCloudTelegramBot.Common.Caches.Search
 
         public void Set(long chatId, SearchTracksResultModel model)
         {
+            var collection = model.Collection;
             var entryOptions = new MemoryCacheEntryOptions
             {
                 AbsoluteExpiration = DateTimeOffset.Now.AddMinutes(1)
             };
-            for (var index = 0; index < model.Collection.Length; index++)
+            for (var index = 0; index < collection.Length; index++)
             {
-                var key = $"{index+1}st{chatId}";
-                var uri = model.Collection[index].Uri;
+                var key = $"{index + 1}st{chatId}";
+                var uri = collection[index].Uri;
                 memoryCache.Set(key, uri, entryOptions);
-                logger.LogInformation($"Successfully set {uri} by key {key}");
             }
+
+            logger.LogInformation($"Successfully cached {collection.Length} tracks for chat {chatId}");
         }
 
-        public bool TryGetTrackUrl(long chatId, int id, out string trackUrl) 
+        public bool TryGetTrackUrl(long chatId, int id, out string trackUrl)
             => memoryCache.TryGetValue($"{id}st{chatId}", out trackUrl);
     }
 }
