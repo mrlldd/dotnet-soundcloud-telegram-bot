@@ -93,8 +93,12 @@ namespace SoundCloudTelegramBot
             {
                 endpoints.MapGet("/", context =>
                 {
+#if DEBUG
+                    return context.Response.WriteAsync("This is my new telega bot!");
+#else
                     context.Response.Redirect("https://t.me/soundcloudinplaybot");
                     return Task.CompletedTask;
+#endif
                 });
                 endpoints.MapControllers();
             });
