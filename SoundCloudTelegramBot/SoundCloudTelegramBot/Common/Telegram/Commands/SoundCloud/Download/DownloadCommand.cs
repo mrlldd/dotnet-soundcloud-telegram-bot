@@ -29,7 +29,7 @@ namespace SoundCloudTelegramBot.Common.Telegram.Commands.SoundCloud.Download
             await BotProvider.Instance.SendAudioAsync(message.Chat.Id,
                 new InputMedia(resultStream, $"{track.User.Username} - {track.Title}.mp3"),
                 $"via @{BotProvider.BotInfo.Username}",
-                ParseMode.Markdown,
+                ParseMode.MarkdownV2,
                 performer: track.User.Username,
                 title: track.Title);
         }
