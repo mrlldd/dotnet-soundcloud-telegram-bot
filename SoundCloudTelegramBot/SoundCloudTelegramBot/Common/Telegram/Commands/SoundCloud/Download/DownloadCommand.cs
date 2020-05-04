@@ -26,8 +26,8 @@ namespace SoundCloudTelegramBot.Common.Telegram.Commands.SoundCloud.Download
 
             var resultStream = await soundCloudInteractor.DownloadTrackAsync(track);
             await BotProvider.Instance.SendAudioAsync(message.Chat.Id,
-                new InputOnlineFile(resultStream, $"{track.User.Username} - {track.Title}.mp3"),
-                track.User.Username,
+                new InputMedia(resultStream, $"{track.User.Username} - {track.Title}.mp3"),
+                performer: track.User.Username,
                 title: track.Title);
         }
     }
