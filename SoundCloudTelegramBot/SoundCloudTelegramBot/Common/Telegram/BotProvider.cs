@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SoundCloudTelegramBot.AppSettings;
 using Telegram.Bot;
+using Telegram.Bot.Types;
 
 namespace SoundCloudTelegramBot.Common.Telegram
 {
@@ -15,7 +16,7 @@ namespace SoundCloudTelegramBot.Common.Telegram
         private readonly ILogger<BotProvider> logger;
         private readonly IAppConfiguration appConfiguration;
         private ITelegramBotClient instance;
-
+        private User botInfo;
         public BotProvider(ILogger<BotProvider> logger, IAppConfiguration appConfiguration)
         {
             this.logger = logger;
@@ -25,6 +26,8 @@ namespace SoundCloudTelegramBot.Common.Telegram
         public ITelegramBotClient Instance =>
             instance ?? throw new InvalidOperationException("Bot is not initialized.");
 
+        public User BotInfo => 
+            botInfo ?? throw new InvalidOperationException("There is no bot information.");
         public async Task Initialize(string webhookUrl)
         {
             logger.LogInformation("Started bot initialization.");
@@ -37,6 +40,7 @@ namespace SoundCloudTelegramBot.Common.Telegram
             logger.LogInformation(JsonConvert.SerializeObject(appConfiguration, Formatting.Indented));
             var updateRoute = webhookUrl + "/api/telegram/update";
             await bot.SetWebhookAsync(updateRoute);
+            botInfo = await bot.GetMeAsync();
             instance = bot;
             logger.LogInformation($"Successfully initialized bot with route: {updateRoute}");
         }
