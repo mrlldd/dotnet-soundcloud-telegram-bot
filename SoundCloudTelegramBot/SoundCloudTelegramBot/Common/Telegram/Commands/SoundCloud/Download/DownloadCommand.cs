@@ -23,8 +23,12 @@ namespace SoundCloudTelegramBot.Common.Telegram.Commands.SoundCloud.Download
                 await BotProvider.Instance.SendTextMessageAsync(message.Chat.Id, "Seems like there is wrong url :(");
                 return;
             }
+
             var resultStream = await soundCloudInteractor.DownloadTrackAsync(track);
-            await BotProvider.Instance.SendAudioAsync(message.Chat.Id, new InputOnlineFile(resultStream, $"{track.User.Username} - {track.Title}"));
+            await BotProvider.Instance.SendAudioAsync(message.Chat.Id,
+                new InputOnlineFile(resultStream, $"{track.User.Username} - {track.Title}.mp3"),
+                track.User.Username,
+                title: track.Title);
         }
     }
 }
