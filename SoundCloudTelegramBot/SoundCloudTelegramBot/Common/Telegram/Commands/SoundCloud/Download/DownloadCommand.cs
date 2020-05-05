@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System.IO;
+using System.Threading.Tasks;
+using RestSharp;
 using SoundCloudTelegramBot.Common.SoundCloud.Interaction;
 using Telegram.Bot.Types;
 
@@ -23,13 +25,28 @@ namespace SoundCloudTelegramBot.Common.Telegram.Commands.SoundCloud.Download
                 return;
             }
 
-            var resultStream = await soundCloudInteractor.DownloadTrackAsync(track);
+            var resultStream = soundCloudInteractor.DownloadTrackAsync(track);
+            var thumbnail = DownloadThumbnail(track.ArtworkUrl);
+            await Task.WhenAll(resultStream, thumbnail);
+            
+            await using var audioStream = await resultStream;
+            await using var thumbnailStream = new MemoryStream(await thumbnail);
+            
+            var name = $"{track.User.Username} - {track.Title}";
             await BotProvider.Instance.SendAudioAsync(message.Chat.Id,
-                new InputMedia(resultStream, $"{track.User.Username} - {track.Title}.mp3"),
+                new InputMedia(audioStream, name + ".mp3"),
                 $"@{BotProvider.BotInfo.Username}",
                 performer: track.User.Username,
                 title: track.Title,
-                thumb: new InputMedia(track.ArtworkUrl));
+                thumb: new InputMedia(thumbnailStream, name + ".jpg"));
+        }
+
+        private async Task<byte[]> DownloadThumbnail(string url)
+        {
+            var client = new RestClient();
+            var request = new RestRequest(url, Method.GET);
+            var result = await client.ExecuteGetAsync(request);
+            return result.RawBytes;
         }
     }
 }
