@@ -1,8 +1,6 @@
 ﻿using System.Threading.Tasks;
 using SoundCloudTelegramBot.Common.SoundCloud.Interaction;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.Enums;
-using Telegram.Bot.Types.InputFiles;
 
 namespace SoundCloudTelegramBot.Common.Telegram.Commands.SoundCloud.Download
 {
@@ -30,7 +28,8 @@ namespace SoundCloudTelegramBot.Common.Telegram.Commands.SoundCloud.Download
                 new InputMedia(resultStream, $"{track.User.Username} - {track.Title}.mp3"),
                 $"@{BotProvider.BotInfo.Username}",
                 performer: track.User.Username,
-                title: track.Title);
+                title: track.Title,
+                thumb: new InputMedia(track.ArtworkUrl));
         }
     }
 }
