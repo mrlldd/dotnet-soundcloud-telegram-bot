@@ -54,7 +54,6 @@ namespace SoundCloudTelegramBot
                 {
                     var entry = item is DictionaryEntry dictionaryEntry ? dictionaryEntry : default;
                     envDictionary[entry.Key.ToString()] = entry.Value.ToString();
-                    Console.WriteLine($"{entry.Key} - {entry.Value}");
                 }
             
                 var soundCloudSettings = new SoundCloudSettings
@@ -68,7 +67,8 @@ namespace SoundCloudTelegramBot
                 };
                 var appConfig = new AppConfiguration(telegramSettings, soundCloudSettings)
                 {
-                    WebhookUrl = "https://soundcloud-in-play-tg-bot.herokuapp.com"
+                    WebhookUrl = "https://soundcloud-in-play-tg-bot.herokuapp.com",
+                    MessageUpdateRoute = configurationRoot[nameof(AppConfiguration.MessageUpdateRoute)]
                 };
                 services.AddSingleton<IAppConfiguration>(appConfig);
             }
