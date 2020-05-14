@@ -54,7 +54,7 @@ namespace SoundCloudTelegramBot
                 {
                     var entry = item is DictionaryEntry dictionaryEntry ? dictionaryEntry : default;
                     envDictionary[entry.Key.ToString()] = entry.Value.ToString();
-                    Console.WriteLine(entry);
+                    Console.WriteLine($"{entry.Key} - {entry.Value}");
                 }
             
                 var soundCloudSettings = new SoundCloudSettings
