@@ -51,7 +51,7 @@ namespace SoundCloudTelegramBot.Common.SoundCloud.Interaction
             request.AddHeader("Accept", "application/json, text/javascript, */*; q=0.01");
             request.AddHeader("Authorization", appConfiguration.SoundCloud.OAuthToken);
             var response = await client.ExecuteGetAsync<SearchTracksResultModel>(request);
-            logger.LogInformation("Successfully got track list.");
+            logger.LogInformation($"Successfully got list of {response.Data.Collection.Length} tracks.");
             return response.Data;
         }
 
