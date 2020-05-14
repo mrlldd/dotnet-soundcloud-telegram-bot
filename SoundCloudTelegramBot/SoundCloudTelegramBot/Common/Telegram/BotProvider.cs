@@ -37,7 +37,7 @@ namespace SoundCloudTelegramBot.Common.Telegram
             }
             
             var bot = new TelegramBotClient(appConfiguration.Telegram.BotToken);
-            logger.LogInformation(JsonConvert.SerializeObject(appConfiguration, Formatting.Indented));
+            //logger.LogInformation(JsonConvert.SerializeObject(appConfiguration, Formatting.Indented));
             var updateRoute = webhookUrl + appConfiguration.MessageUpdateRoute;
             await bot.SetWebhookAsync(updateRoute);
             botInfo = await bot.GetMeAsync();
