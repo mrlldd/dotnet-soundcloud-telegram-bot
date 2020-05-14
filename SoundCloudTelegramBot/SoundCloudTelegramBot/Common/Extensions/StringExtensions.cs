@@ -9,7 +9,7 @@ namespace SoundCloudTelegramBot.Common.Extensions
         {
             url = text.Split(" ", StringSplitOptions.RemoveEmptyEntries)
                 .FirstOrDefault(x => x.StartsWith("https://soundcloud.com"));
-            return string.IsNullOrEmpty(url);
+            return !string.IsNullOrEmpty(url);
         }
     }
 }
