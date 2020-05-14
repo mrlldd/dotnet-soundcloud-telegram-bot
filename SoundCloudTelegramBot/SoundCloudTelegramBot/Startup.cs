@@ -45,6 +45,7 @@ namespace SoundCloudTelegramBot
             {
                 appConfiguration = new AppConfiguration(new TelegramSettings(), new SoundCloudSettings());
                 configurationRoot.Bind(appConfiguration);
+                services.AddSingleton<IAppConfiguration>(appConfiguration);
             }
             else if (environment.IsProduction())
             {
