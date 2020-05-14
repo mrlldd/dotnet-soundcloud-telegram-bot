@@ -28,6 +28,11 @@ namespace SoundCloudTelegramBot.Common.Telegram.Commands.SoundCloud.Search
         public override async Task ExecuteAsync(Message message)
         {
             var result = await soundCloudInteractor.SearchTracks(message.Text);
+            if (result.Collection.Length == 0)
+            {
+                await BotProvider.Instance.SendTextMessageAsync(message.Chat.Id, "There is no such tracks :(");
+                return;
+            }
             searchCache.Set(message.Chat.Id, result);
             await BotProvider.Instance.SendTextMessageAsync(message.Chat.Id,
                 BuildResponse(result.Collection));
