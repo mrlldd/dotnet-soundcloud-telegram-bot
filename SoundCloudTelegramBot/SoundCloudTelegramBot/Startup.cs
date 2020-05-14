@@ -66,7 +66,10 @@ namespace SoundCloudTelegramBot
                 {
                     BotToken = envDictionary["BOTTOKEN"]
                 };
-                var appConfig = new AppConfiguration(telegramSettings, soundCloudSettings);
+                var appConfig = new AppConfiguration(telegramSettings, soundCloudSettings)
+                {
+                    WebhookUrl = "https://soundcloud-in-play-tg-bot.herokuapp.com"
+                };
                 services.AddSingleton<IAppConfiguration>(appConfig);
             }
 
