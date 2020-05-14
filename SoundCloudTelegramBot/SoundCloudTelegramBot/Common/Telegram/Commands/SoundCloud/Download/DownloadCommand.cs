@@ -25,28 +25,31 @@ namespace SoundCloudTelegramBot.Common.Telegram.Commands.SoundCloud.Download
                 return;
             }
 
-            var resultStream = soundCloudInteractor.DownloadTrackAsync(track);
-            var thumbnail = DownloadThumbnail(track.ArtworkUrl);
-            await Task.WhenAll(resultStream, thumbnail);
-            
-            await using var audioStream = await resultStream;
-            await using var thumbnailStream = new MemoryStream(await thumbnail);
-            
             var name = $"{track.User.Username} - {track.Title}";
+
+            var resultStream = soundCloudInteractor.DownloadTrackAsync(track);
+            var thumbnailTask = track.ArtworkUrl != null
+                ? DownloadThumbnail(track.ArtworkUrl, name)
+                : Task.FromResult<InputMedia>(null);
+
+            await Task.WhenAll(resultStream, thumbnailTask);
+
+            await using var audioStream = await resultStream;
+            var thumbnail = await thumbnailTask;
             await BotProvider.Instance.SendAudioAsync(message.Chat.Id,
                 new InputMedia(audioStream, name + ".mp3"),
                 $"@{BotProvider.BotInfo.Username}",
                 performer: track.User.Username,
                 title: track.Title,
-                thumb: new InputMedia(thumbnailStream, name + ".jpg"));
+                thumb: thumbnail);
         }
 
-        private async Task<byte[]> DownloadThumbnail(string url)
+        private async Task<InputMedia> DownloadThumbnail(string url, string fileName)
         {
             var client = new RestClient();
             var request = new RestRequest(url, Method.GET);
-            var result = await client.ExecuteGetAsync(request);
-            return result.RawBytes;
+            var response = await client.ExecuteGetAsync(request);
+            return new InputMedia(new MemoryStream(response.RawBytes, false), $"{fileName}.jpg");
         }
     }
 }
