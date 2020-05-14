@@ -45,7 +45,7 @@ namespace SoundCloudTelegramBot.Common.Telegram.Commands
                 return botProvider.Instance.SendTextMessageAsync(message.Chat.Id, "Not found this command: " + commandName);
             }
 
-            logger.LogInformation($"Successfully dispatched command \"{commandName}\".");
+            logger.LogInformation($"Successfully dispatched command \"{commandName}\" with arguments {arguments}.");
             message.Text = arguments;
             return command.ExecuteAsync(message);
         }
