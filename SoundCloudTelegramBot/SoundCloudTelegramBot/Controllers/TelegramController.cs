@@ -32,12 +32,14 @@ namespace SoundCloudTelegramBot.Controllers
         public Task Update([FromBody] Update update)
         {
             logger.LogTelegramMessage(update);
+            update.Message.Text = update.Message.Text.Trim();
             if (update.Message.IsCommand())
             {
                 return dispatcher.DispatchCommandAsync(update.Message);
             }
-
-            update.Message.Text = update.Message.Text.Trim().Insert(0, "/search ");
+            update.Message.Text = update.Message.Text.TryExtractSoundCloudUrl(out var url)
+                ? $"/download {url}"
+                : $"/search {update.Message.Text}";
             return dispatcher.DispatchCommandAsync(update.Message);
         }
     }
