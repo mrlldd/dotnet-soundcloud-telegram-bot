@@ -10,6 +10,7 @@ using SoundCloudTelegramBot.Common.Telegram.Commands;
 using SoundCloudTelegramBot.Common.Telegram.Commands.SoundCloud.Search;
 using Telegram.Bot.Types;
 using SoundCloudTelegramBot.ExceptionFilters;
+using Telegram.Bot.Types.Enums;
 
 namespace SoundCloudTelegramBot.Controllers
 {
@@ -32,15 +33,25 @@ namespace SoundCloudTelegramBot.Controllers
         public Task Update([FromBody] Update update)
         {
             logger.LogTelegramMessage(update);
-            update.Message.Text = update.Message.Text.Trim();
-            if (update.Message.IsCommand())
+            Message message;
+            if (update.Type == UpdateType.CallbackQuery)
             {
-                return dispatcher.DispatchCommandAsync(update.Message);
+                message = update.CallbackQuery.Message;
+                message.Text = update.CallbackQuery.Data;
+            }
+            else
+            {
+                message = update.Message;
+            }
+            message.Text = message.Text.Trim();
+            if (message.Text.IsCommand())
+            {
+                return dispatcher.DispatchCommandAsync(message);
             }
             update.Message.Text = update.Message.Text.TryExtractSoundCloudUrl(out var url)
                 ? $"/download {url}"
-                : $"/search {update.Message.Text}";
-            return dispatcher.DispatchCommandAsync(update.Message);
+                : $"/search {message.Text}";
+            return dispatcher.DispatchCommandAsync(message);
         }
     }
 }
