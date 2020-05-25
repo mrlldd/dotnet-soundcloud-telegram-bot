@@ -11,7 +11,7 @@ namespace SoundCloudTelegramBot.Common.Services.CurrentMessageProvider
         public CallbackQuery CallbackQuery => Update.CallbackQuery;
         public Message Message => Update.Message;
 
-        public Chat Chat => CallbackQuery.Message?.Chat ??
+        public Chat Chat => CallbackQuery?.Message?.Chat ??
                             Message.Chat ?? throw new InvalidOperationException("There is no chat in provider.");
 
         public void Set(Update message)
