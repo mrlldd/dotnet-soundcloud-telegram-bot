@@ -49,7 +49,7 @@ namespace SoundCloudTelegramBot.Controllers
                 return dispatcher.DispatchCommandAsync(message);
             }
             update.Message.Text = update.Message.Text.TryExtractSoundCloudUrl(out var url)
-                ? $"/download {url}"
+                ? $"/resolve {url}"
                 : $"/search {message.Text}";
             return dispatcher.DispatchCommandAsync(message);
         }

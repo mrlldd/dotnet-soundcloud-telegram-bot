@@ -38,18 +38,10 @@ namespace SoundCloudTelegramBot.Common.Telegram.Commands
         public Task DispatchCommandAsync(Message message)
         {
             var (commandName, arguments) = ParseCommandText(message.Text);
-            if (commandName.All(char.IsDigit) &&
-                searchCache.TryGetTrackUrl(message.Chat.Id, int.Parse(commandName), out var cachedTrack))
+            if (commandName.All(char.IsDigit))
             {
-                message.Text = cachedTrack.Uri;
-                var keyboard = new InlineKeyboardMarkup(new InlineKeyboardButton
-                {
-                    Text = "Download",
-                    CallbackData = "/download " + cachedTrack.Uri,
-                });
-                return botProvider.Instance.SendPhotoAsync(message.Chat.Id, new InputOnlineFile(cachedTrack.AvatarUrl.Replace("large", "t300x300")),
-                    $"{cachedTrack.Author} - {cachedTrack.Name}",
-                    replyMarkup: keyboard);
+                message.Text = commandName;
+                return commands["resolve"].ExecuteAsync(message);
             }
 
             if (!commands.TryGetValue(commandName, out var command))
