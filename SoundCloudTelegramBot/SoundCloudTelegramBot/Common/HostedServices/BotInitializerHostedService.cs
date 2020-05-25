@@ -29,7 +29,6 @@ namespace SoundCloudTelegramBot.Common.HostedServices
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            
             using var scope = logger.BeginScope("Bot initialization");
             if (await TryInitializeAutomatically())
             {
