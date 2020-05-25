@@ -47,7 +47,7 @@ namespace SoundCloudTelegramBot.ExceptionFilters
             await Task.WhenAll(devIds
                 .Select(x => bot.SendTextMessageAsync(x, message)));
             await bot.SendTextMessageAsync(updateProvider.Chat.Id,
-                "Oops, seems like there is an error during your message handling, sorry :(.\n Notified developer about that.");
+                "Oops, seems like there is an error during your message handling, sorry :(.\nNotified developer about that.");
             context.HttpContext.Response.StatusCode = 200;
             context.ExceptionHandled = true;
             provider.GetService<ILoggerFactory>().CreateLogger<TelegramExceptionHandler>()
