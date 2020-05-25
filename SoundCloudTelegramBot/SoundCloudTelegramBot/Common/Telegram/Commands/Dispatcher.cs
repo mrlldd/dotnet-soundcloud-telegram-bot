@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using SoundCloudTelegramBot.Common.Caches.Search;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.InputFiles;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace SoundCloudTelegramBot.Common.Telegram.Commands
 {
@@ -13,7 +15,8 @@ namespace SoundCloudTelegramBot.Common.Telegram.Commands
         private readonly ILogger<Dispatcher> logger;
         private readonly IBotProvider botProvider;
         private readonly ISearchCache searchCache;
-        private readonly Dictionary<string,ICommand> commands;
+        private readonly Dictionary<string, ICommand> commands;
+
         public Dispatcher(IServiceProvider serviceProvider,
             ILogger<Dispatcher> logger,
             IBotProvider botProvider,
@@ -31,18 +34,28 @@ namespace SoundCloudTelegramBot.Common.Telegram.Commands
                 .ToDictionary(x => x.Name);
             logger.LogInformation($"Collected {commands.Count} commands.");
         }
+
         public Task DispatchCommandAsync(Message message)
         {
             var (commandName, arguments) = ParseCommandText(message.Text);
             if (commandName.All(char.IsDigit) &&
-                searchCache.TryGetTrackUrl(message.Chat.Id, int.Parse(commandName), out var trackUrl))
+                searchCache.TryGetTrackUrl(message.Chat.Id, int.Parse(commandName), out var cachedTrack))
             {
-                message.Text = trackUrl;
-                return commands["download"].ExecuteAsync(message);
+                message.Text = cachedTrack.Uri;
+                var keyboard = new InlineKeyboardMarkup(new InlineKeyboardButton
+                {
+                    Text = "Download",
+                    CallbackData = "/download " + cachedTrack.Uri,
+                });
+                return botProvider.Instance.SendPhotoAsync(message.Chat.Id, new InputOnlineFile(cachedTrack.AvatarUrl.Replace("large", "t300x300")),
+                    $"{cachedTrack.Author} - {cachedTrack.Name}",
+                    replyMarkup: keyboard);
             }
+
             if (!commands.TryGetValue(commandName, out var command))
             {
-                return botProvider.Instance.SendTextMessageAsync(message.Chat.Id, "Not found this command: " + commandName);
+                return botProvider.Instance.SendTextMessageAsync(message.Chat.Id,
+                    "Not found this command: " + commandName);
             }
 
             logger.LogInformation($"Successfully dispatched command \"{commandName}\" with arguments {arguments}.");
