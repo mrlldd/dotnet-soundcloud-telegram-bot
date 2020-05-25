@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using SoundCloudTelegramBot.Common.Extensions;
 using SoundCloudTelegramBot.Common.Services.CurrentMessageProvider;
 using SoundCloudTelegramBot.Common.Telegram;
+using Telegram.Bot.Types.Enums;
 
 namespace SoundCloudTelegramBot.ExceptionFilters
 {
@@ -20,13 +21,32 @@ namespace SoundCloudTelegramBot.ExceptionFilters
         public async Task OnExceptionAsync(ExceptionContext context)
         {
             var provider = context.HttpContext.RequestServices;
-            var telegramMessage = provider.GetService<ICurrentMessageProvider>().Message;
+            var updateProvider = provider.GetService<ICurrentMessageProvider>();
             var bot = provider.GetService<IBotProvider>().Instance;
             var exception = context.Exception;
-            var message = exception.ToMessage(telegramMessage);
+            string message;
+            switch (updateProvider.UpdateType)
+            {
+                case UpdateType.Message:
+                {
+                    message = exception.ToMessage(updateProvider.Message);
+                    break;
+                }
+                case UpdateType.CallbackQuery:
+                {
+                    message = exception.ToMessage(updateProvider.CallbackQuery);
+                    break;
+                }
+                default:
+                {
+                    message = exception.ToMessage() + "\n Source: Unknown";
+                    break;
+                }
+                
+            }
             await Task.WhenAll(devIds
                 .Select(x => bot.SendTextMessageAsync(x, message)));
-            await bot.SendTextMessageAsync(telegramMessage.Chat.Id,
+            await bot.SendTextMessageAsync(updateProvider.Chat.Id,
                 "Oops, seems like there is an error during your message handling, sorry :(.\n Notified developer about that.");
             context.HttpContext.Response.StatusCode = 200;
             context.ExceptionHandled = true;
