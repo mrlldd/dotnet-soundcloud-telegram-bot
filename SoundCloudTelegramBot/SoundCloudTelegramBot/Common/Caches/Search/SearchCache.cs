@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+using SoundCloudTelegramBot.Common.Caches.Search.Models;
 using SoundCloudTelegramBot.Common.SoundCloud.Models;
 
 namespace SoundCloudTelegramBot.Common.Caches.Search
@@ -9,6 +11,7 @@ namespace SoundCloudTelegramBot.Common.Caches.Search
     {
         private readonly IMemoryCache memoryCache;
         private readonly ILogger<SearchCache> logger;
+        private const string keyFormat = "{0}st{1}";
 
         public SearchCache(IMemoryCache memoryCache, ILogger<SearchCache> logger)
         {
@@ -23,17 +26,26 @@ namespace SoundCloudTelegramBot.Common.Caches.Search
             {
                 AbsoluteExpiration = DateTimeOffset.Now.AddMinutes(1)
             };
-            for (var index = 0; index < collection.Length; index++)
+            foreach (var entry in collection
+                .Select((x, index) => new
+                {
+                    Index = index + 1,
+                    Track = new CachedTrack
+                    {
+                        Author = x.User.Username,
+                        AvatarUrl = x.ArtworkUrl,
+                        Name = x.Title,
+                        Uri = x.Uri
+                    }
+                }))
             {
-                var key = $"{index + 1}st{chatId}";
-                var uri = collection[index].Uri;
-                memoryCache.Set(key, uri, entryOptions);
+                memoryCache.Set(string.Format(keyFormat, entry.Index, chatId), entry.Track, entryOptions);
             }
 
             logger.LogInformation($"Successfully cached {collection.Length} tracks for chat {chatId}");
         }
-
-        public bool TryGetTrackUrl(long chatId, int id, out string trackUrl)
-            => memoryCache.TryGetValue($"{id}st{chatId}", out trackUrl);
+        // todo all cache update on any get
+        public bool TryGetTrackUrl(long chatId, int id, out CachedTrack trackUrl)
+            => memoryCache.TryGetValue(string.Format(keyFormat, id, chatId), out trackUrl);
     }
 }
