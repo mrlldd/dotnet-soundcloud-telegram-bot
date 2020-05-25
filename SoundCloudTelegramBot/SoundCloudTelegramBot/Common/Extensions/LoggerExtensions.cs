@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
 
 namespace SoundCloudTelegramBot.Common.Extensions
 {
@@ -8,12 +9,37 @@ namespace SoundCloudTelegramBot.Common.Extensions
     {
         public static void LogTelegramMessage<T>(this ILogger<T> logger, Update update)
         {
-            var hasLastName = string.IsNullOrEmpty(update.Message.From.LastName);
-            logger.LogInformation(
-                $"User {update.Message.Chat.Id} " +
-                $"({update.Message.From.Username} aka " +
-                $"{update.Message.From.FirstName + (hasLastName ? " " + update.Message.From.LastName : string.Empty)}" +
-                $" send a message \"{update.Message.Text}\" at {update.Message.Date}.");
+            Message message = default;
+            var sentInfo = string.Empty;
+            switch (update.Type)
+            {
+                case UpdateType.Message:
+                {
+                    message = update.Message;
+                    sentInfo = $"message \"{message.Text}\" at {message.Date}.";
+                    break;
+                }
+                case UpdateType.CallbackQuery:
+                {
+                    var callbackQuery = update.CallbackQuery;
+                    message = callbackQuery.Message;
+                    sentInfo = $"callback query \"{callbackQuery.Data}\" at {message.Date}.";
+                    break;
+                }
+            }
+
+            if (message != default)
+            {
+                var hasLastName = string.IsNullOrEmpty(message.From.LastName);
+                logger
+                    .LogInformation($"User {message.Chat.Id} " +
+                                    $"({message.From.Username} aka " +
+                                    $"{message.From.FirstName + (hasLastName ? " " + message.From.LastName : string.Empty).Trim()}" +
+                                    " have sent a " + sentInfo);
+                return;
+            }
+
+            logger.LogInformation("There is no info in update of type: " + update.Type);
         }
     }
 }

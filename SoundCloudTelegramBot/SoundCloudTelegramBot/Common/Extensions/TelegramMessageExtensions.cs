@@ -4,6 +4,6 @@ namespace SoundCloudTelegramBot.Common.Extensions
 {
     public static class TelegramMessageExtensions
     {
-        public static bool IsCommand(this Message message) => message.Text.Trim().StartsWith("/");
+        public static bool IsCommand(this string message) => message.Trim().StartsWith("/");
     }
 }

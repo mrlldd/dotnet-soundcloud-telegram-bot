@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
 using SoundCloudTelegramBot.Common.Services.CurrentMessageProvider;
@@ -12,12 +13,12 @@ namespace SoundCloudTelegramBot.ActionFilters
         {
             base.OnActionExecuting(context);
             var messageProvider = context.HttpContext.RequestServices.GetService<ICurrentMessageProvider>();
-            if (!context.ActionArguments.TryGetValue("update", out var update))
+            if (!(context.ActionArguments.Values.FirstOrDefault(x => x is Update) is Update update))
             {
                 throw new InvalidOperationException("There is no message.");
             }
             
-            messageProvider.Set(((Update)update).Message);
+            messageProvider.Set(update);
         }
     }
 }
