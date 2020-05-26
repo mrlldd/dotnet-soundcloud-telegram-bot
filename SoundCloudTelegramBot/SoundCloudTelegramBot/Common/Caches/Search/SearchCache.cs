@@ -33,7 +33,7 @@ namespace SoundCloudTelegramBot.Common.Caches.Search
                     Track = new CachedTrack
                     {
                         Author = x.User.Username,
-                        AvatarUrl = x.ArtworkUrl,
+                        ImageUrl = x.ArtworkUrl ?? x.User.AvatarUrl,
                         Name = x.Title,
                         Uri = x.Uri
                     }

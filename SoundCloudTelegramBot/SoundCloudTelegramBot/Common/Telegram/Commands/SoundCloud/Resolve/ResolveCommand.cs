@@ -28,11 +28,10 @@ namespace SoundCloudTelegramBot.Common.Telegram.Commands.SoundCloud.Resolve
             if (int.TryParse(message.Text, out var id) &&
                 searchCache.TryGetTrackUrl(message.Chat.Id, id, out var cachedTrack))
             {
-                
                 result = new ResolveResult
                 {
                     Author = cachedTrack.Author,
-                    AvatarUrl = cachedTrack.AvatarUrl,
+                    AvatarUrl = cachedTrack.ImageUrl,
                     Name = cachedTrack.Name,
                     Uri = cachedTrack.Uri
                 };
