@@ -14,24 +14,21 @@ namespace SoundCloudTelegramBot.Common.Telegram.Commands
     {
         private readonly ILogger<Dispatcher> logger;
         private readonly IBotProvider botProvider;
-        private readonly ISearchCache searchCache;
-        private readonly Dictionary<string, ICommand> commands;
+        private readonly IReadOnlyDictionary<string, Func<Message, Task>> commands;
 
         public Dispatcher(IServiceProvider serviceProvider,
             ILogger<Dispatcher> logger,
-            IBotProvider botProvider,
-            ISearchCache searchCache)
+            IBotProvider botProvider)
         {
             this.logger = logger;
             this.botProvider = botProvider;
-            this.searchCache = searchCache;
             commands = typeof(Startup)
                 .Assembly
                 .GetTypes()
                 .Where(x => typeof(ICommand).IsAssignableFrom(x))
                 .Select(serviceProvider.GetService)
                 .OfType<ICommand>()
-                .ToDictionary(x => x.Name);
+                .ToDictionary<ICommand, string, Func<Message, Task>>(x => x.Name, x => x.ExecuteAsync);
             logger.LogInformation($"Collected {commands.Count} commands.");
         }
 
@@ -41,7 +38,7 @@ namespace SoundCloudTelegramBot.Common.Telegram.Commands
             if (commandName.All(char.IsDigit))
             {
                 message.Text = commandName;
-                return commands["resolve"].ExecuteAsync(message);
+                return commands["resolve"](message);
             }
 
             if (!commands.TryGetValue(commandName, out var command))
@@ -52,7 +49,7 @@ namespace SoundCloudTelegramBot.Common.Telegram.Commands
 
             logger.LogInformation($"Successfully dispatched command \"{commandName}\" with arguments {arguments}.");
             message.Text = arguments;
-            return command.ExecuteAsync(message);
+            return command(message);
         }
 
         private (string, string) ParseCommandText(string command)

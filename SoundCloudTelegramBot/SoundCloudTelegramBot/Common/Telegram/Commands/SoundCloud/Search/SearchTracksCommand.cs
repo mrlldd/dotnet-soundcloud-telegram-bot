@@ -40,7 +40,7 @@ namespace SoundCloudTelegramBot.Common.Telegram.Commands.SoundCloud.Search
         
         private static string BuildResponse(IEnumerable<TrackModel> tracks)
             => tracks
-                .Select((x, index) => $"/{index + 1} {x.User.Username} - {x.Title}")
+                .Select((x, index) => $"/{index + 1} {x.User.Username} - {x.Title} - " + TimeSpan.FromMilliseconds(x.Duration).ToString("mm\\:ss"))
                 .Aggregate((prev, next) => prev + "\n" + next);
     }
 }

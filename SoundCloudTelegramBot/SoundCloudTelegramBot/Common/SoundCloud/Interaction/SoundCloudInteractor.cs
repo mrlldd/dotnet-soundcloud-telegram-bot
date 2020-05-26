@@ -85,11 +85,11 @@ namespace SoundCloudTelegramBot.Common.SoundCloud.Interaction
         {
             var chunksListRequest = new RestRequest(redirectUrl);
             chunksListRequest.AddHeader("Authorization", appConfiguration.SoundCloud.OAuthToken);
-            var chunksListResponse = await client.ExecuteGetAsync<object>(chunksListRequest);
+            var chunksListResponse = await client.ExecuteGetAsync(chunksListRequest);
             logger.LogInformation("Successfully got chunks list.");
             return Regex
                 .Split(chunksListResponse.Content, "(https://cf-hls-media.sndcdn.com.(?(?=\\n#)|.*))")
-                .Where((x, i) => i % 2 == 1) // works as needed, made because of low-level knowledge of regex
+                .Where((x, i) => i % 2 == 1) // works as needed, made because of low knowledge level of regex
                 .ToArray();
         }
 
