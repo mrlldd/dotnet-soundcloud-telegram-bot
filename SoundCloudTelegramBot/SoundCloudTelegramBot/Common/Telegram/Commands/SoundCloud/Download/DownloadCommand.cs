@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using RestSharp;
 using SoundCloudTelegramBot.Common.SoundCloud.Interaction;
@@ -25,7 +26,7 @@ namespace SoundCloudTelegramBot.Common.Telegram.Commands.SoundCloud.Download
                 return;
             }
 
-            var name = $"{track.User.Username} - {track.Title}";
+            var name = Regex.Replace($"{track.User.Username} - {track.Title}", @"[^\w\s\-]", string.Empty);
 
             var resultStream = soundCloudInteractor.DownloadTrackAsync(track);
             var thumbnailTask = track.ArtworkUrl != null
