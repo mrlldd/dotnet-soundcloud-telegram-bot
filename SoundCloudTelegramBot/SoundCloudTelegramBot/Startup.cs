@@ -70,7 +70,7 @@ namespace SoundCloudTelegramBot
                 var appConfig = new AppConfiguration(telegramSettings, soundCloudSettings)
                 {
                     WebhookUrl = "https://soundcloud-in-play-tg-bot.herokuapp.com",
-                    AllowedUpdates = JsonConvert.DeserializeObject<UpdateType[]>(configurationRoot[nameof(AppConfiguration.AllowedUpdates)])
+                    AllowedUpdates = configurationRoot.GetSection(nameof(AppConfiguration.AllowedUpdates)).Get<UpdateType[]>()
                 };
                 services.AddSingleton<IAppConfiguration>(appConfig);
             }
