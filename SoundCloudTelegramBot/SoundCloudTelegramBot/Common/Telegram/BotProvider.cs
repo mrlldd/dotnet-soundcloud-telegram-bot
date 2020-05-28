@@ -1,13 +1,20 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SoundCloudTelegramBot.AppSettings;
+using SoundCloudTelegramBot.Controllers;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
 
 namespace SoundCloudTelegramBot.Common.Telegram
 {
@@ -17,6 +24,7 @@ namespace SoundCloudTelegramBot.Common.Telegram
         private readonly IAppConfiguration appConfiguration;
         private ITelegramBotClient instance;
         private User botInfo;
+
         public BotProvider(ILogger<BotProvider> logger, IAppConfiguration appConfiguration)
         {
             this.logger = logger;
@@ -26,23 +34,27 @@ namespace SoundCloudTelegramBot.Common.Telegram
         public ITelegramBotClient Instance =>
             instance ?? throw new InvalidOperationException("Bot is not initialized.");
 
-        public User BotInfo => 
+        public User Info =>
             botInfo ?? throw new InvalidOperationException("There is no bot information.");
-        public async Task Initialize(string webhookUrl)
+
+        public async Task InitializeAsync(string webhookUrl)
         {
             logger.LogInformation("Started bot initialization.");
             if (instance != null)
             {
                 throw new InvalidOperationException("Bot is already initialized.");
             }
-            
+
             var bot = new TelegramBotClient(appConfiguration.Telegram.BotToken);
             //logger.LogInformation(JsonConvert.SerializeObject(appConfiguration, Formatting.Indented));
-            var updateRoute = webhookUrl + appConfiguration.MessageUpdateRoute;
-            await bot.SetWebhookAsync(updateRoute);
+            var routeTemplate = webhookUrl + typeof(TelegramController)
+                                    .GetCustomAttribute<RouteAttribute>()
+                                    .Template + $"/{nameof(TelegramController.Update).ToLower()}";
+            await bot.SetWebhookAsync(routeTemplate,
+                allowedUpdates: appConfiguration.AllowedUpdates);
             botInfo = await bot.GetMeAsync();
             instance = bot;
-            logger.LogInformation($"Successfully initialized bot with route: {updateRoute}");
+            logger.LogInformation($"Successfully initialized bot with route: {routeTemplate}");
         }
     }
 }

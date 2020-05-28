@@ -6,8 +6,8 @@ namespace SoundCloudTelegramBot.Common.Telegram
 {
     public interface IBotProvider
     {
-        public Task Initialize(string webhookUrl);
+        public Task InitializeAsync(string webhookUrl);
         public ITelegramBotClient Instance { get; }
-        public User BotInfo { get; }
+        public User Info { get; }
     }
 }

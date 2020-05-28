@@ -40,7 +40,7 @@ namespace SoundCloudTelegramBot.Common.HostedServices
             var input = Console.ReadLine();
             try
             {
-                await botProvider.Initialize(input);
+                await botProvider.InitializeAsync(input);
             }
             catch (Exception e)
             {
@@ -55,7 +55,7 @@ namespace SoundCloudTelegramBot.Common.HostedServices
             logger.LogInformation("Trying to initialize bot automatically.");
             try
             {
-                await botProvider.Initialize(appConfiguration.WebhookUrl);
+                await botProvider.InitializeAsync(appConfiguration.WebhookUrl);
             }
             catch (Exception e)
             {

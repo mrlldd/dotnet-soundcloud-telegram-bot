@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using SoundCloudTelegramBot.AppSettings;
 using SoundCloudTelegramBot.AppSettings.SoundCloud;
 using SoundCloudTelegramBot.AppSettings.Telegram;
@@ -21,6 +22,7 @@ using SoundCloudTelegramBot.Common.SoundCloud;
 using SoundCloudTelegramBot.Common.Telegram;
 using SoundCloudTelegramBot.Common.Telegram.Commands;
 using SoundCloudTelegramBot.Middleware;
+using Telegram.Bot.Types.Enums;
 
 namespace SoundCloudTelegramBot
 {
@@ -68,7 +70,7 @@ namespace SoundCloudTelegramBot
                 var appConfig = new AppConfiguration(telegramSettings, soundCloudSettings)
                 {
                     WebhookUrl = "https://soundcloud-in-play-tg-bot.herokuapp.com",
-                    MessageUpdateRoute = configurationRoot[nameof(AppConfiguration.MessageUpdateRoute)]
+                    AllowedUpdates = JsonConvert.DeserializeObject<UpdateType[]>(configurationRoot[nameof(AppConfiguration.AllowedUpdates)])
                 };
                 services.AddSingleton<IAppConfiguration>(appConfig);
             }

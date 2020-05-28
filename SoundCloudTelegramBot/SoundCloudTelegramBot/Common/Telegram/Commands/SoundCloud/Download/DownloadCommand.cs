@@ -39,7 +39,7 @@ namespace SoundCloudTelegramBot.Common.Telegram.Commands.SoundCloud.Download
             var thumbnail = await thumbnailTask;
             await BotProvider.Instance.SendAudioAsync(message.Chat.Id,
                 new InputMedia(audioStream, name + ".mp3"),
-                $"@{BotProvider.BotInfo.Username}",
+                $"@{BotProvider.Info.Username}",
                 performer: track.User.Username,
                 title: track.Title,
                 thumb: thumbnail);
