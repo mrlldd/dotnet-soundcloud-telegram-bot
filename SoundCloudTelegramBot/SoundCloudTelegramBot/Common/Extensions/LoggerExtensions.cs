@@ -35,7 +35,7 @@ namespace SoundCloudTelegramBot.Common.Extensions
                     .LogInformation($"User {message.Chat.Id} " +
                                     $"(@{message.Chat.Username} aka " +
                                     $"{message.Chat.FirstName + (hasLastName ? " " + message.Chat.LastName : string.Empty).Trim()}" +
-                                    " have sent a " + sentInfo);
+                                    " has sent a " + sentInfo);
                 return;
             }
 
