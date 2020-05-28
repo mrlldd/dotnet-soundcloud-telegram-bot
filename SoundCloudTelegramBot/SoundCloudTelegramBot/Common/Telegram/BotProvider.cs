@@ -21,14 +21,12 @@ namespace SoundCloudTelegramBot.Common.Telegram
     public class BotProvider : IBotProvider
     {
         private readonly ILogger<BotProvider> logger;
-        private readonly IAppConfiguration appConfiguration;
         private ITelegramBotClient instance;
         private User botInfo;
 
-        public BotProvider(ILogger<BotProvider> logger, IAppConfiguration appConfiguration)
+        public BotProvider(ILogger<BotProvider> logger)
         {
             this.logger = logger;
-            this.appConfiguration = appConfiguration;
         }
 
         public ITelegramBotClient Instance =>
@@ -37,24 +35,16 @@ namespace SoundCloudTelegramBot.Common.Telegram
         public User Info =>
             botInfo ?? throw new InvalidOperationException("There is no bot information.");
 
-        public async Task InitializeAsync(string webhookUrl)
+        public async Task InitializeAsync(Func<Task<ITelegramBotClient>> provideBotAsync)
         {
-            logger.LogInformation("Started bot initialization.");
             if (instance != null)
             {
                 throw new InvalidOperationException("Bot is already initialized.");
             }
 
-            var bot = new TelegramBotClient(appConfiguration.Telegram.BotToken);
-            //logger.LogInformation(JsonConvert.SerializeObject(appConfiguration, Formatting.Indented));
-            var routeTemplate = webhookUrl + typeof(TelegramController)
-                                    .GetCustomAttribute<RouteAttribute>()
-                                    .Template + $"/{nameof(TelegramController.Update).ToLower()}";
-            await bot.SetWebhookAsync(routeTemplate,
-                allowedUpdates: appConfiguration.AllowedUpdates);
-            botInfo = await bot.GetMeAsync();
-            instance = bot;
-            logger.LogInformation($"Successfully initialized bot with route: {routeTemplate}");
+            instance = await provideBotAsync();
+            botInfo = await instance.GetMeAsync();
+            logger.LogInformation("Successfully provided bot instance.");
         }
     }
 }

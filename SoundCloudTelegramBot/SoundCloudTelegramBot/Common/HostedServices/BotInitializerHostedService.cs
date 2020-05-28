@@ -4,12 +4,18 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SoundCloudTelegramBot.AppSettings;
 using SoundCloudTelegramBot.Common.Telegram;
+using SoundCloudTelegramBot.Common.Telegram.Commands;
+using SoundCloudTelegramBot.Controllers;
+using Telegram.Bot;
+using Dispatcher = SoundCloudTelegramBot.Common.Telegram.Commands.Dispatcher;
 
 namespace SoundCloudTelegramBot.Common.HostedServices
 {
@@ -18,13 +24,17 @@ namespace SoundCloudTelegramBot.Common.HostedServices
         private readonly IBotProvider botProvider;
         private readonly ILogger<BotInitializerHostedService> logger;
         private readonly IAppConfiguration appConfiguration;
+        private readonly IDispatcher dispatcher;
 
-        public BotInitializerHostedService(IBotProvider botProvider, ILogger<BotInitializerHostedService> logger,
-            IAppConfiguration appConfiguration)
+        public BotInitializerHostedService(IBotProvider botProvider,
+            ILogger<BotInitializerHostedService> logger,
+            IAppConfiguration appConfiguration,
+            IDispatcher dispatcher)
         {
             this.botProvider = botProvider;
             this.logger = logger;
             this.appConfiguration = appConfiguration;
+            this.dispatcher = dispatcher;
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
@@ -40,7 +50,7 @@ namespace SoundCloudTelegramBot.Common.HostedServices
             var input = Console.ReadLine();
             try
             {
-                await botProvider.InitializeAsync(input);
+                await botProvider.InitializeAsync(() => RegisterAsync(input));
             }
             catch (Exception e)
             {
@@ -49,13 +59,28 @@ namespace SoundCloudTelegramBot.Common.HostedServices
             }
 #endif
         }
+        
+        private async Task<ITelegramBotClient> RegisterAsync(string webhookUrl)
+        {
+            logger.LogInformation("Started bot initialization.");
+            
+            var bot = new TelegramBotClient(appConfiguration.Telegram.BotToken);
+            //logger.LogInformation(JsonConvert.SerializeObject(appConfiguration, Formatting.Indented));
+            var routeTemplate = webhookUrl + typeof(TelegramController)
+                                    .GetCustomAttribute<RouteAttribute>()
+                                    .Template + $"/{nameof(TelegramController.Update).ToLower()}";
+            await bot.SetWebhookAsync(routeTemplate,
+                allowedUpdates: dispatcher.AllowedTypes);
+            logger.LogInformation($"Successfully initialized bot with route: {routeTemplate}");
+            return bot;
+        }
 
         private async Task<bool> TryInitializeAutomatically()
         {
             logger.LogInformation("Trying to initialize bot automatically.");
             try
             {
-                await botProvider.InitializeAsync(appConfiguration.WebhookUrl);
+                await botProvider.InitializeAsync(() => RegisterAsync(appConfiguration.WebhookUrl));
             }
             catch (Exception e)
             {
