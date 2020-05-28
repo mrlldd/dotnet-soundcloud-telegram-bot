@@ -17,21 +17,21 @@ namespace SoundCloudTelegramBot.Controllers
     [ApiController]
     [WrapCurrentMessage]
     [TypeFilter(typeof(TelegramExceptionHandler))]
-    [Route("/api/[controller]/[action]")]
+    [Route("/api/telegram")]
     public class TelegramController : ControllerBase
     {
-        private readonly ILogger<TelegramController> logger;
         private readonly IDispatcher dispatcher;
 
-        public TelegramController(ILogger<TelegramController> logger, IDispatcher dispatcher)
+        public TelegramController(IDispatcher dispatcher)
         {
-            this.logger = logger;
             this.dispatcher = dispatcher;
         }
 
-        [HttpPost]
-        public Task Update([FromBody] Update update)
-        {
+        [HttpPost("update")]
+        public Task Update([FromBody] Update update) 
+            => dispatcher.DispatchAsync(update);
+
+        /*{
             logger.LogTelegramMessage(update);
             Message message;
             if (update.Type == UpdateType.CallbackQuery)
@@ -46,12 +46,12 @@ namespace SoundCloudTelegramBot.Controllers
             message.Text = message.Text.Trim();
             if (message.Text.IsCommand())
             {
-                return dispatcher.DispatchCommandAsync(message);
+                return dispatcher.DispatchAsync(update);
             }
             update.Message.Text = update.Message.Text.TryExtractSoundCloudUrl(out var url)
                 ? $"/resolve {url}"
                 : $"/search {message.Text}";
-            return dispatcher.DispatchCommandAsync(message);
-        }
+            return dispatcher.DispatchAsync(update);
+        }*/
     }
 }

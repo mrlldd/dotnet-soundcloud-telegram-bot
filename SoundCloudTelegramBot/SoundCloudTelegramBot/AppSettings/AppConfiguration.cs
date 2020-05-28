@@ -1,5 +1,6 @@
 ﻿using SoundCloudTelegramBot.AppSettings.SoundCloud;
 using SoundCloudTelegramBot.AppSettings.Telegram;
+using Telegram.Bot.Types.Enums;
 
 namespace SoundCloudTelegramBot.AppSettings
 {
@@ -12,8 +13,7 @@ namespace SoundCloudTelegramBot.AppSettings
         }
         public ITelegramSettings Telegram { get; set; }
         public ISoundCloudSettings SoundCloud { get; set; }
-
-        public string MessageUpdateRoute { get; set; }
+        public UpdateType[] AllowedUpdates { get; set; }
         public string WebhookUrl { get; set; }
     }
 }
