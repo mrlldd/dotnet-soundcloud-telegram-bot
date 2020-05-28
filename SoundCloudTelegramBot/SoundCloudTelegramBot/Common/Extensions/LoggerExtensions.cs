@@ -33,7 +33,7 @@ namespace SoundCloudTelegramBot.Common.Extensions
                 var hasLastName = string.IsNullOrEmpty(message.From.LastName);
                 logger
                     .LogInformation($"User {message.Chat.Id} " +
-                                    $"({message.Chat.Username} aka " +
+                                    $"(@{message.Chat.Username} aka " +
                                     $"{message.Chat.FirstName + (hasLastName ? " " + message.Chat.LastName : string.Empty).Trim()}" +
                                     " have sent a " + sentInfo);
                 return;
