@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
@@ -19,9 +20,8 @@ namespace SoundCloudTelegramBot.Common.Caches.Search
             this.logger = logger;
         }
 
-        public void Set(long chatId, SearchTracksResultModel model)
+        public void Set(long chatId, ITypedEntity[] collection)
         {
-            var collection = model.Collection;
             var entryOptions = new MemoryCacheEntryOptions
             {
                 AbsoluteExpiration = DateTimeOffset.Now.AddMinutes(1)

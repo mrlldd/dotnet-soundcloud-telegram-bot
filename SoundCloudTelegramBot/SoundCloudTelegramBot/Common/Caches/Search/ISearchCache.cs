@@ -5,7 +5,7 @@ namespace SoundCloudTelegramBot.Common.Caches.Search
 {
     public interface ISearchCache
     {
-        void Set(long chatId, SearchTracksResultModel model);
+        void Set(long chatId, ITypedEntity[] collection);
         bool TryGetTrackUrl(long chatId, int id, out CachedTrack trackUrl);
     }
 }
