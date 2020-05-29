@@ -34,12 +34,13 @@ namespace SoundCloudTelegramBot.Common.Telegram.Commands
             commands = typeof(Startup)
                 .Assembly
                 .GetTypes()
-                .Where(x => typeof(ICommand).IsAssignableFrom(x))
+                .Where(typeof(ICommand).IsAssignableFrom)
                 .Select(serviceProvider.GetService)
                 .OfType<ICommand>()
                 .ToDictionary<ICommand, string, Func<Message, Task>>(x => x.Name, x => x.ExecuteAsync);
             logger.LogInformation($"Found {commands.Count} commands.");
             var parameter = Expression.Parameter(typeof(Update));
+            var constant = Expression.Constant(this);
             updateHandlers = typeof(Dispatcher)
                 .GetMethods(BindingFlags.Instance | BindingFlags.NonPublic)
                 .Select(x => new
@@ -51,8 +52,7 @@ namespace SoundCloudTelegramBot.Common.Telegram.Commands
                 .ToDictionary(x => x.HandlerAttribute.UpdateType,
                     x => Expression
                         .Lambda<Func<Update, Task>>(Expression
-                                .Call(Expression
-                                    .Constant(this), x.Method, parameter),
+                                .Call(constant, x.Method, parameter),
                             parameter).CompileFast());
             logger.LogInformation($"Found {updateHandlers.Count} update handlers.");
         }
