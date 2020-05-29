@@ -42,12 +42,17 @@ namespace SoundCloudTelegramBot.Common.Telegram.Commands
             var parameter = Expression.Parameter(typeof(Update));
             updateHandlers = typeof(Dispatcher)
                 .GetMethods(BindingFlags.Instance | BindingFlags.NonPublic)
-                .Where(x => x.GetCustomAttribute<UpdateHandlerAttribute>() != null)
-                .ToDictionary(x => (UpdateType) Enum.Parse(typeof(UpdateType), x.Name),
+                .Select(x => new
+                {
+                    HandlerAttribute = x.GetCustomAttribute<UpdateHandlerAttribute>(),
+                    Method = x
+                })
+                .Where(x => x.HandlerAttribute != null)
+                .ToDictionary(x => x.HandlerAttribute.UpdateType,
                     x => Expression
                         .Lambda<Func<Update, Task>>(Expression
                                 .Call(Expression
-                                    .Constant(this), x, parameter),
+                                    .Constant(this), x.Method, parameter),
                             parameter).CompileFast());
             logger.LogInformation($"Found {updateHandlers.Count} update handlers.");
         }
@@ -103,13 +108,14 @@ namespace SoundCloudTelegramBot.Common.Telegram.Commands
             {
                 return DispatchCommandAsync(message);
             }
+
             message.Text = message.Text.TryExtractSoundCloudUrl(out var url)
                 ? $"/resolve {url}"
                 : $"/search {message.Text}";
             return DispatchCommandAsync(message);
         }
 
-        [UpdateHandler]
+        [UpdateHandler(UpdateType.Message)]
         private Task Message(Update update)
         {
             var message = update.Message;
@@ -117,7 +123,7 @@ namespace SoundCloudTelegramBot.Common.Telegram.Commands
             return HandleMessage(message);
         }
 
-        [UpdateHandler]
+        [UpdateHandler(UpdateType.CallbackQuery)]
         private Task CallbackQuery(Update update)
         {
             var message = update.CallbackQuery.Message;
