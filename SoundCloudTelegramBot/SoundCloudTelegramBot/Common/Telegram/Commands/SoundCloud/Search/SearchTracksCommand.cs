@@ -42,8 +42,8 @@ namespace SoundCloudTelegramBot.Common.Telegram.Commands.SoundCloud.Search
                 BuildResponse(collection));
         }
         
-        private static string BuildResponse(IEnumerable<ITypedEntity> tracks)
-            => tracks
+        private static string BuildResponse(IEnumerable<ITypedEntity> entities)
+            => entities
                 .Select((x, index) => $"/{index + 1} {ResolveType(x.Kind)} {x.User.Username} - {x.Title} - " + TimeSpan.FromMilliseconds(x.Duration).ToString("mm\\:ss"))
                 .Aggregate((prev, next) => prev + "\n" + next);
 
