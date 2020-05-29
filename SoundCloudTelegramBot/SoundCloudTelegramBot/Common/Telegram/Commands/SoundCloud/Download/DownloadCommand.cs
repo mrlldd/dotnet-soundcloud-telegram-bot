@@ -16,14 +16,11 @@ namespace SoundCloudTelegramBot.Common.Telegram.Commands.SoundCloud.Download
     public class DownloadCommand : CommandBase, IDownloadCommand
     {
         private readonly ISoundCloudInteractor soundCloudInteractor;
-        private readonly ILogger<DownloadCommand> logger;
         public override string Name { get; } = "download";
 
-        public DownloadCommand(IBotProvider botProvider, ISoundCloudInteractor soundCloudInteractor, ILogger<DownloadCommand> logger) :
-            base(botProvider)
+        public DownloadCommand(IBotProvider botProvider, ISoundCloudInteractor soundCloudInteractor) : base(botProvider)
         {
             this.soundCloudInteractor = soundCloudInteractor;
-            this.logger = logger;
         }
 
         public override async Task ExecuteAsync(Message message)
@@ -90,25 +87,15 @@ namespace SoundCloudTelegramBot.Common.Telegram.Commands.SoundCloud.Download
                     await Task.WhenAll(thumbnailTask, searchTracksByIdsTask);
                     var searchResult = await searchTracksByIdsTask;
                     var thumbnail = await thumbnailTask;
-                    foreach (var track in resolved
-                        .Concat(searchResult)
-                        .Select((x, index) => new
-                        {
-                            Value = x,
-                            Index = index
-                        })
-                        .GroupBy(x => x.Index % 4, x => x.Value))
+                    foreach (var track in resolved.Concat(searchResult))
                     {
-                        await Task.WhenAll(track.Select(async x =>
-                        {
-                            await using var stream = await soundCloudInteractor.DownloadTrackAsync(x);
-                            await bot.SendAudioAsync(message.Chat.Id,
-                                new InputMedia(stream, name + ".mp3"),
-                                $"@{BotProvider.Info.Username}",
-                                performer: x.User.Username,
-                                title: x.Title,
-                                thumb: thumbnail);
-                        }));
+                        await using var stream = await soundCloudInteractor.DownloadTrackAsync(track);
+                        await bot.SendAudioAsync(message.Chat.Id,
+                            new InputMedia(stream, name + ".mp3"),
+                            $"@{BotProvider.Info.Username}",
+                            performer: track.User.Username,
+                            title: track.Title,
+                            thumb: thumbnail);
                     }
 
                     break;
