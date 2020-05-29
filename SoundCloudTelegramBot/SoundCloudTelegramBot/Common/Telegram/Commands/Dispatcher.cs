@@ -63,13 +63,14 @@ namespace SoundCloudTelegramBot.Common.Telegram.Commands
             return updateHandlers[update.Type](update)
                 .ContinueWith(x =>
                 {
-                    if (x.IsCompleted)
+                    if (x.IsCompletedSuccessfully)
                     {
                         logger.LogInformation($"Successfully handled {update.Type} update.");
                         return;
                     }
 
-                    logger.LogError(x.Exception, $"{update.Type} update handling failed.");
+                    logger.LogError($"{update.Type} update handling failed.");
+                    throw x.Exception;
                 });
         }
 

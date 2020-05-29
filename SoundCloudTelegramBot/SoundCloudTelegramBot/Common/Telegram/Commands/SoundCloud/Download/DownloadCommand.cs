@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 using RestSharp;
 using SoundCloudTelegramBot.Common.SoundCloud.Enums;
 using SoundCloudTelegramBot.Common.SoundCloud.Interaction;
