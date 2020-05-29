@@ -1,8 +1,9 @@
 ﻿using System;
+using SoundCloudTelegramBot.Common.SoundCloud.Enums;
 
 namespace SoundCloudTelegramBot.Common.SoundCloud.Models
 {
-    public class TrackModel
+    public class Track : ITrack
     {
         public string ArtworkUrl { get; set; }
         public int CommentCount { get; set; }
@@ -12,13 +13,13 @@ namespace SoundCloudTelegramBot.Common.SoundCloud.Models
         public DateTime DisplayDate { get; set; }
         public int DownloadCount { get; set; }
         public bool Downloadable { get; set; }
-        public int Duration { get; set; }
+        public long Duration { get; set; }
         public string EmbeddableBy { get; set; }
-        public int FullDuration { get; set; }
+        public long FullDuration { get; set; }
         public string Genre { get; set; }
         public bool HasDownloadsLeft { get; set; }
         public long Id { get; set; }
-        public string Kind { get; set; }
+        public EntityKind Kind { get; set; }
         public string LabelName { get; set; }
         public DateTime LastModified { get; set; }
         public string LastName { get; set; }
@@ -35,7 +36,7 @@ namespace SoundCloudTelegramBot.Common.SoundCloud.Models
         public string PurchaseTitle { get; set; }
         public string PurchaseUrl { get; set; }
         public DateTime? ReleaseDate { get; set; }
-        public int RepostsCount { get; set; }
+        public int? RepostsCount { get; set; }
         public string SecretToken { get; set; }
         public string Sharing { get; set; }
         public string State { get; set; }

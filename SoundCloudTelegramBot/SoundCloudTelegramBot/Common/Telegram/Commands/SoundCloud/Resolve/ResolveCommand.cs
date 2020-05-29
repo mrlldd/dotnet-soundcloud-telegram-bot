@@ -38,7 +38,7 @@ namespace SoundCloudTelegramBot.Common.Telegram.Commands.SoundCloud.Resolve
             }
             else if (message.Text.TryExtractSoundCloudUrl(out var url))
             {
-                var track = await soundCloudInteractor.ResolveTrackAsync(url);
+                var track = await soundCloudInteractor.ResolveAsync(url);
                 if (track != null)
                 {
                     result = new ResolveResult

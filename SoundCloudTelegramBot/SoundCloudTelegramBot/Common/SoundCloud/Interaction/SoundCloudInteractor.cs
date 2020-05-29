@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Runtime.InteropServices.ComTypes;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Http;
@@ -13,6 +15,7 @@ using RestSharp.Serializers.NewtonsoftJson;
 using SoundCloudTelegramBot.AppSettings;
 using SoundCloudTelegramBot.Common.Extensions;
 using SoundCloudTelegramBot.Common.SoundCloud.Models;
+using SoundCloudTelegramBot.Common.SoundCloud.Models.Search;
 
 namespace SoundCloudTelegramBot.Common.SoundCloud.Interaction
 {
@@ -35,28 +38,30 @@ namespace SoundCloudTelegramBot.Common.SoundCloud.Interaction
                     NamingStrategy = new SnakeCaseNamingStrategy()
                     {
                         ProcessDictionaryKeys = true
-                    }
-                }
+                    },
+                },
+                Error = (_, args) => Console.WriteLine(args.ErrorContext.Error)
             });
             client = restClient;
         }
 
         //todo more SOLID :)
-        public async Task<SearchTracksResultModel> SearchTracks(string query)
+        public async Task<ISearchResult<ITypedEntity>> SearchAsync(string query)
         {
-            const string uri = "/search/tracks";
+            const string uri = "/search";
             var request = new RestRequest(uri);
             request.AddQueryParameter("q", query);
             request.AddQueryParameter("client_id", appConfiguration.SoundCloud.ClientId);
             request.AddHeader("Accept", "application/json, text/javascript, */*; q=0.01");
             request.AddHeader("Authorization", appConfiguration.SoundCloud.OAuthToken);
-            var response = await client.ExecuteGetAsync<SearchTracksResultModel>(request);
+            var response = await client.ExecuteGetAsync<SearchResult<CombinedEntity>>(request);
             logger.LogInformation($"Successfully got list of {response.Data.Collection.Length} tracks.");
-            return response.Data;
+            var result = response.Data.ToAbstractLevelEntity();
+            return result;
         }
 
         //todo decorated restclient or smth like
-        public async Task<Stream> DownloadTrackAsync(TrackModel track)
+        public async Task<Stream> DownloadTrackAsync(ITrack track)
         {
             var redirectUrl = await GetRedirectUrlAsync(track.Media.Transcodings[0].Url);
             var chunkLinksList = await GetChunkLinksListAsync(redirectUrl);
@@ -108,7 +113,7 @@ namespace SoundCloudTelegramBot.Common.SoundCloud.Interaction
             public string Url { get; set; }
         }
 
-        public async Task<TrackModel> ResolveTrackAsync(string trackUrl)
+        public async Task<ITypedEntity> ResolveAsync(string trackUrl)
         {
             const string uri = "/resolve";
             var request = new RestRequest(uri);
@@ -116,14 +121,27 @@ namespace SoundCloudTelegramBot.Common.SoundCloud.Interaction
             request.AddQueryParameter("client_id", appConfiguration.SoundCloud.ClientId);
             request.AddHeader("Accept", "application/json, text/javascript, */*; q=0.01");
             request.AddHeader("Authorization", appConfiguration.SoundCloud.OAuthToken);
-            var response = await client.ExecuteGetAsync<TrackModel>(request);
+            var response = await client.ExecuteGetAsync<CombinedEntity>(request);
             if (response.IsSuccessful)
             {
                 logger.LogInformation("Successfully resolved track.");
                 return response.Data;
             }
+
             logger.LogWarning($"Track resolve for url \"{trackUrl}\" failed.");
             return null;
+        }
+
+        public async Task<ITrack[]> SearchTracksByIds(IEnumerable<long> ids)
+        {
+            var request = new RestRequest("/tracks");
+            request.AddQueryParameter(nameof(ids), string.Join(',', ids));
+            request.AddQueryParameter("client_id", appConfiguration.SoundCloud.ClientId);
+            request.AddHeader("Authorization", appConfiguration.SoundCloud.OAuthToken);
+            var response = await client.ExecuteGetAsync<IEnumerable<Track>>(request);
+            return response.Data
+                .OfType<ITrack>()
+                .ToArray();
         }
     }
 }
