@@ -35,7 +35,7 @@ namespace SoundCloudTelegramBot.Common.SoundCloud.Models
         public long UserId { get; set; }
         public bool IsAlbum { get; set; }
         public bool ManagedByFeeds { get; set; }
-        public DateTime PublishedAt { get; set; }
+        public DateTime? PublishedAt { get; set; }
         public string SetType { get; set; }
         public int TrackCount { get; set; }
         public Track[] Tracks { get; set; }
