@@ -35,7 +35,8 @@ namespace SoundCloudTelegramBot.Common.Caches.Search
                         Author = x.User.Username,
                         ImageUrl = x.ArtworkUrl ?? x.User.AvatarUrl,
                         Name = x.Title,
-                        Uri = x.Uri
+                        Uri = x.Uri,
+                        Duration = TimeSpan.FromMilliseconds(x.Duration)
                     }
                 }))
             {

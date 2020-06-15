@@ -5,7 +5,9 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 using FastExpressionCompiler;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using SoundCloudTelegramBot.AppSettings;
 using SoundCloudTelegramBot.Common.Caches.Search;
 using SoundCloudTelegramBot.Common.Extensions;
 using Telegram.Bot.Types;
@@ -74,10 +76,11 @@ namespace SoundCloudTelegramBot.Common.Telegram.Commands
                 });
         }
 
-
         private Task DispatchCommandAsync(Message message)
         {
+            var bot = botProvider.Instance;
             var (commandName, arguments) = ParseCommandText(message.Text);
+            
             if (commandName.All(char.IsDigit))
             {
                 message.Text = commandName;
@@ -86,8 +89,14 @@ namespace SoundCloudTelegramBot.Common.Telegram.Commands
 
             if (!commands.TryGetValue(commandName, out var command))
             {
-                return botProvider.Instance.SendTextMessageAsync(message.Chat.Id,
+                return bot.SendTextMessageAsync(message.Chat.Id,
                     "Not found this command: " + commandName);
+            }
+            
+            if (string.IsNullOrEmpty(arguments))
+            {
+                return bot.SendTextMessageAsync(message.Chat.Id,
+                    $"Seems like there are no arguments for \"{commandName}\" command :(");
             }
 
             logger.LogInformation($"Successfully dispatched command \"{commandName}\" with arguments {arguments}.");
