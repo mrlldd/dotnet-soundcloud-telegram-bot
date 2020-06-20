@@ -95,6 +95,7 @@ namespace SoundCloudTelegramBot.Common.Telegram.Commands.SoundCloud.Download
                             performer: track.User.Username,
                             title: track.Title,
                             thumb: thumbnail);
+                        thumbnail.Content.Position = 0;
                     }
 
                     break;
