@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using SoundCloudTelegramBot.Common.Caches.Search;
 using SoundCloudTelegramBot.Common.Extensions;
+using SoundCloudTelegramBot.Common.SoundCloud.Enums;
 using SoundCloudTelegramBot.Common.SoundCloud.Interaction;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.InputFiles;
@@ -35,13 +36,14 @@ namespace SoundCloudTelegramBot.Common.Telegram.Commands.SoundCloud.Resolve
                     AvatarUrl = cachedTrack.ImageUrl,
                     Name = cachedTrack.Name,
                     Uri = cachedTrack.Uri,
-                    Duration = cachedTrack.Duration
+                    Duration = cachedTrack.Duration,
+                    Kind = cachedTrack.Kind
                 };
             }
             else if (message.Text.TryExtractSoundCloudUrl(out var url))
             {
                 var track = await soundCloudInteractor.ResolveAsync(url);
-                if (track != null)
+                if (track != null && track.Kind != EntityKind.User)
                 {
                     result = new ResolveResult
                     {
@@ -49,7 +51,8 @@ namespace SoundCloudTelegramBot.Common.Telegram.Commands.SoundCloud.Resolve
                         Name = track.Title,
                         Uri = track.Uri,
                         AvatarUrl = track.ArtworkUrl ?? track.User.AvatarUrl,
-                        Duration = TimeSpan.FromMilliseconds(track.Duration)
+                        Duration = TimeSpan.FromMilliseconds(track.Duration),
+                        Kind = track.Kind
                     };
                 }
             }
@@ -69,7 +72,7 @@ namespace SoundCloudTelegramBot.Common.Telegram.Commands.SoundCloud.Resolve
                 new InputOnlineFile(result.AvatarUrl.Replace("large", "t300x300")),
                 $"{result.Author} - {result.Name}\n" +
                 $"Duration: {result.Duration:mm\\:ss}\n" +
-                $"File Size: {result.Duration.GetFileSizeWith120KbpsInMegabytes()} MB",
+                $"{result.Kind} size: {result.Duration.GetFileSizeWith120KbpsInMegabytes()} MB",
                 replyMarkup: keyboard);
         }
 
@@ -79,8 +82,8 @@ namespace SoundCloudTelegramBot.Common.Telegram.Commands.SoundCloud.Resolve
             public string Author { get; set; }
             public string Name { get; set; }
             public string Uri { get; set; }
-
             public TimeSpan Duration { get; set; }
+            public EntityKind Kind { get; set; }
         }
     }
 }

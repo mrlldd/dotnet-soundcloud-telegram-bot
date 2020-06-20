@@ -1,4 +1,5 @@
 ﻿using System;
+using SoundCloudTelegramBot.Common.SoundCloud.Enums;
 
 namespace SoundCloudTelegramBot.Common.Caches.Search.Models
 {
@@ -9,5 +10,6 @@ namespace SoundCloudTelegramBot.Common.Caches.Search.Models
         public string Name { get; set; }
         public string ImageUrl { get; set; }
         public TimeSpan Duration { get; set; }
+        public EntityKind Kind { get; set; }
     }
 }
