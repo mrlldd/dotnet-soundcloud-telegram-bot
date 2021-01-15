@@ -93,7 +93,7 @@ namespace SoundCloudTelegramBot.Common.Telegram.Commands
                     "Not found this command: " + commandName);
             }
             
-            if (string.IsNullOrEmpty(arguments))
+            if (string.IsNullOrEmpty(arguments) && commandName != "start")
             {
                 return bot.SendTextMessageAsync(message.Chat.Id,
                     $"Seems like there are no arguments for \"{commandName}\" command :(");

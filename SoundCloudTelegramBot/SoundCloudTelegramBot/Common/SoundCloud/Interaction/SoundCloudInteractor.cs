@@ -52,8 +52,7 @@ namespace SoundCloudTelegramBot.Common.SoundCloud.Interaction
             var request = new RestRequest(uri);
             request.AddQueryParameter("q", query);
             request.AddQueryParameter("client_id", appConfiguration.SoundCloud.ClientId);
-            request.AddHeader("Accept", "application/json, text/javascript, */*; q=0.01");
-            request.AddHeader("Authorization", appConfiguration.SoundCloud.OAuthToken);
+            request.AddHeader("Accept", "application/json; q=0.01");
             var response = await client.ExecuteGetAsync<SearchResult<CombinedEntity>>(request);
             logger.LogInformation($"Successfully got list of {response.Data.Collection.Length} tracks.");
             var result = response.Data.ToAbstractLevelEntity();
@@ -89,7 +88,6 @@ namespace SoundCloudTelegramBot.Common.SoundCloud.Interaction
         private async Task<string[]> GetChunkLinksListAsync(string redirectUrl)
         {
             var chunksListRequest = new RestRequest(redirectUrl);
-            chunksListRequest.AddHeader("Authorization", appConfiguration.SoundCloud.OAuthToken);
             var chunksListResponse = await client.ExecuteGetAsync(chunksListRequest);
             logger.LogInformation("Successfully got chunks list.");
             return Regex
@@ -102,7 +100,6 @@ namespace SoundCloudTelegramBot.Common.SoundCloud.Interaction
         {
             var request = new RestRequest(url);
             request.AddQueryParameter("client_id", appConfiguration.SoundCloud.ClientId);
-            request.AddHeader("Authorization", appConfiguration.SoundCloud.OAuthToken);
             var response = await client.ExecuteGetAsync<RedirectResponse>(request);
             logger.LogInformation("Successfully got redirect url.");
             return response.Data.Url;
@@ -119,8 +116,7 @@ namespace SoundCloudTelegramBot.Common.SoundCloud.Interaction
             var request = new RestRequest(uri);
             request.AddQueryParameter("url", trackUrl);
             request.AddQueryParameter("client_id", appConfiguration.SoundCloud.ClientId);
-            request.AddHeader("Accept", "application/json, text/javascript, */*; q=0.01");
-            request.AddHeader("Authorization", appConfiguration.SoundCloud.OAuthToken);
+            request.AddHeader("Accept", "application/json; q=0.01");
             var response = await client.ExecuteGetAsync<CombinedEntity>(request);
             if (response.IsSuccessful)
             {
@@ -137,7 +133,6 @@ namespace SoundCloudTelegramBot.Common.SoundCloud.Interaction
             var request = new RestRequest("/tracks");
             request.AddQueryParameter(nameof(ids), string.Join(',', ids));
             request.AddQueryParameter("client_id", appConfiguration.SoundCloud.ClientId);
-            request.AddHeader("Authorization", appConfiguration.SoundCloud.OAuthToken);
             var response = await client.ExecuteGetAsync<IEnumerable<Track>>(request);
             return response.Data
                 .OfType<ITrack>()

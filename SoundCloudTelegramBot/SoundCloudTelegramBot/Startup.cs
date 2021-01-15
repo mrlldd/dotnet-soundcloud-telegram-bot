@@ -60,8 +60,7 @@ namespace SoundCloudTelegramBot
             
                 var soundCloudSettings = new SoundCloudSettings
                 {
-                    ClientId = envDictionary[nameof(SoundCloudSettings.ClientId).ToUpper()],
-                    OAuthToken = envDictionary[nameof(SoundCloudSettings.OAuthToken).ToUpper()]
+                    ClientId = envDictionary[nameof(SoundCloudSettings.ClientId).ToUpper()]
                 };
                 var telegramSettings = new TelegramSettings
                 {

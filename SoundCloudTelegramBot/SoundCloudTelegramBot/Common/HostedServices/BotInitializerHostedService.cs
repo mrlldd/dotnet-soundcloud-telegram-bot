@@ -66,9 +66,8 @@ namespace SoundCloudTelegramBot.Common.HostedServices
             
             var bot = new TelegramBotClient(appConfiguration.Telegram.BotToken);
             //logger.LogInformation(JsonConvert.SerializeObject(appConfiguration, Formatting.Indented));
-            var routeTemplate = webhookUrl + typeof(TelegramController)
-                                    .GetCustomAttribute<RouteAttribute>()
-                                    .Template + $"/{nameof(TelegramController.Update).ToLower()}";
+            var routeTemplate =
+                $"{webhookUrl}{typeof(TelegramController).GetCustomAttribute<RouteAttribute>()?.Template}/{nameof(TelegramController.Update).ToLower()}";
             await bot.SetWebhookAsync(routeTemplate,
                 allowedUpdates: dispatcher.AllowedTypes);
             logger.LogInformation($"Successfully initialized bot with route: {routeTemplate}");

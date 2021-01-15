@@ -2,7 +2,6 @@
 {
     public interface ISoundCloudSettings
     {
-        string OAuthToken { get; set; }
         string ClientId { get; set; }
     }
 }
